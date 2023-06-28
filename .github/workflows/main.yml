@@ -43,11 +43,11 @@ jobs:
 #           echo "${{ secrets.CD_DEPLOY_CONFIG }}" > redis.properties
 #           cat redis.properties
           
-#       - name: Create application.yaml for CD Deploy
-#         run: |
-#           pwd
-#           echo "${{ secrets.APP_YML }}" > src/main/resources/application.yaml
-#           cat src/main/resources/application.yaml
+      - name: Create application.yaml for CD Deploy
+        run: |
+          pwd
+          echo "${{ secrets.APP_YML }}" > src/main/resources/application.yaml
+          cat src/main/resources/application.yaml
             
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew

@@ -9,7 +9,7 @@ env:
   DOCKER_IMAGE: ghcr.io/${{ github.actor }}/${{ secrets.SERVER_IMAGE }}
   VERSION: ${{ github.sha }}
   NAME: ${{ secrets.SERVER_IMAGE }}
-#   REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+  REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
 
 jobs:
   build:
@@ -35,13 +35,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
             
-#       - name: Create redis.properties for CD Deploy
-#         run: |
-#           mkdir -p src/main/resources
-#           cd src/main/resources
-#           pwd
-#           echo "${{ secrets.CD_DEPLOY_CONFIG }}" > redis.properties
-#           cat redis.properties
+      - name: Create redis.properties for CD Deploy
+        run: |
+          mkdir -p src/main/resources
+          cd src/main/resources
+          pwd
+          echo "${{ secrets.REDIS_PROPERTIES }}" > redis.properties
+          cat redis.properties
           
       - name: Create application.yaml for CD Deploy
         run: |

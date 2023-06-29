@@ -94,8 +94,8 @@ jobs:
             fi
             echo "pass mysql-container"
 
-            if [[ "$(docker ps -qa --filter ancestor=backend-deploy/${{ secrets.SERVER_CONTAINER }}:latest)" ]]; then
-              docker rm -f $(docker ps -qa --filter ancestor=backend-deploy/${{ secrets.SERVER_CONTAINER }}:latest)
+            if [[ "$(docker ps -qa --filter ancestor=${{ secrets.SERVER_IMAGE }}:latest)" ]]; then
+              docker rm -f $(docker ps -qa --filter ancestor=${{ secrets.SERVER_CONTAINER }}:latest)
             fi
             echo "pass backend-deploy/${{ secrets.SERVER_CONTAINER }}:latest"
   

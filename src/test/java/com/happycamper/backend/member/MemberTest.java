@@ -1,5 +1,6 @@
 package com.happycamper.backend.member;
 
+import com.happycamper.backend.member.controller.form.BusinessMemberRegisterForm;
 import com.happycamper.backend.member.controller.form.CheckEmailDuplicateRequestForm;
 import com.happycamper.backend.member.controller.form.NormalMemberRegisterForm;
 import com.happycamper.backend.member.entity.RoleType;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import static com.happycamper.backend.member.entity.RoleType.BUSINESS;
 import static com.happycamper.backend.member.entity.RoleType.NORMAL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -44,5 +46,20 @@ public class MemberTest {
 
         // 중복이면 성공
         assertEquals(isDuplicatedEmail, true);
+    }
+
+    @Test
+    @DisplayName("판매자 회원 가입")
+    void 판매자_회원_가입 () {
+        final String email = "seller@test.com";
+        final String password = "test";
+        final RoleType roleType = BUSINESS;
+        final Long businessNumber = 1111111111L;
+        final String businessName = "다운이네캠핑장";
+
+        BusinessMemberRegisterForm requestForm = new BusinessMemberRegisterForm(email, password, roleType, businessNumber, businessName);
+        Boolean isCompleteSignUpNormal = memberService.businessMemberRegister(requestForm.toBusinessMemberRegisterRequest());
+
+        assertEquals(isCompleteSignUpNormal, true);
     }
 }

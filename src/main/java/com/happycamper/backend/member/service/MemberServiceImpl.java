@@ -7,6 +7,7 @@ import com.happycamper.backend.member.entity.Role;
 import com.happycamper.backend.member.repository.MemberRepository;
 import com.happycamper.backend.member.repository.MemberRoleRepository;
 import com.happycamper.backend.member.repository.RoleRepository;
+import com.happycamper.backend.member.service.request.BusinessMemberRegisterRequest;
 import com.happycamper.backend.member.service.request.NormalMemberRegisterRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,5 +48,23 @@ public class MemberServiceImpl implements MemberService{
             return true;
         }
         return false;
+    }
+
+    // 사업자 회원의 회원가입
+    @Override
+    public Boolean businessMemberRegister(BusinessMemberRegisterRequest request) {
+
+        final Long businessNumber = request.getBusinessNumber();
+        final String businessName = request.getBusinessName();
+
+        // 계정 생성
+        final Member member = memberRepository.save(request.toMember());
+
+        // 회원 타입 부여
+        final Role role = roleRepository.findByRoleType(request.getRoleType()).get();
+        final MemberRole memberRole = new MemberRole(role, member, businessNumber, businessName);
+        memberRoleRepository.save(memberRole);
+
+        return true;
     }
 }

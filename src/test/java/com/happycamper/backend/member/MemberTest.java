@@ -2,8 +2,11 @@ package com.happycamper.backend.member;
 
 import com.happycamper.backend.member.controller.form.*;
 import com.happycamper.backend.member.entity.RoleType;
+import com.happycamper.backend.member.entity.sellerInfo.Address;
+import com.happycamper.backend.member.entity.sellerInfo.SellerInfo;
 import com.happycamper.backend.member.entity.userProfile.UserProfile;
 import com.happycamper.backend.member.service.MemberService;
+import com.happycamper.backend.member.service.request.SellerInfoRegisterRequest;
 import com.happycamper.backend.member.service.request.UserProfileRegisterRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -92,5 +95,28 @@ public class MemberTest {
         UserProfile userProfile = memberService.addProfile(accountId, registerRequest);
 
         assertEquals(userProfile.getName(), name);
+    }
+
+    @Test
+    @DisplayName("판매자 회원의 고객센터 정보 생성")
+    void 판매자_회원의_고객센터_정보_생성 () {
+        final Long accountId = 2L;
+        final String city = "서울 강남구";
+        final String street = "테헤란로14길 6";
+        final String addressDetail = "6층";
+        final String zipcode = "06234";
+        final Long contactNumber = 050714002037L;
+        final String bank = "우리은행";
+        final Long accountNumber = 1002123456789L;
+
+        Address address = new Address(city, street, addressDetail, zipcode);
+
+        SellerInfoRegisterRequestForm registerRequestForm =
+                new SellerInfoRegisterRequestForm(address, contactNumber, bank, accountNumber);
+        SellerInfoRegisterRequest request = registerRequestForm.toSellerInfoRegisterRequest();
+
+        SellerInfo sellerInfo = memberService.addSellerInfo(accountId, request);
+
+        assertEquals(sellerInfo.getAccountNumber(), accountNumber);
     }
 }

@@ -1,5 +1,6 @@
 package com.happycamper.backend.member.service;
 
+import com.happycamper.backend.member.controller.form.CheckEmailDuplicateRequestForm;
 import com.happycamper.backend.member.entity.Member;
 import com.happycamper.backend.member.entity.MemberRole;
 import com.happycamper.backend.member.entity.Role;
@@ -22,6 +23,7 @@ public class MemberServiceImpl implements MemberService{
     final private MemberRoleRepository memberRoleRepository;
     final private RoleRepository roleRepository;
 
+    // 일반 회원의 회원가입
     @Override
     public Boolean normalMemberRegister(NormalMemberRegisterRequest request) {
         // 계정 생성
@@ -35,4 +37,15 @@ public class MemberServiceImpl implements MemberService{
         return true;
     }
 
+    // 이메일 중복 확인
+    @Override
+    public Boolean checkEmailDuplicate(CheckEmailDuplicateRequestForm requestForm) {
+        // 존재하는 계정인지 확인
+        Optional<Member> maybeMember = memberRepository.findByEmail(requestForm.getEmail());
+
+        if(maybeMember.isPresent()) {
+            return true;
+        }
+        return false;
+    }
 }

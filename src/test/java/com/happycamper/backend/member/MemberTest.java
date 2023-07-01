@@ -30,4 +30,19 @@ public class MemberTest {
 
         assertEquals(isCompleteSignUpMember, true);
     }
+
+    @Test
+    @DisplayName("이메일 중복 확인")
+    void 이메일_중복_확인 () {
+
+        // 가입된 메일로 중복 확인
+        final String email = "test@test.com";
+
+        CheckEmailDuplicateRequestForm requestForm = new CheckEmailDuplicateRequestForm(email);
+        Boolean isDuplicatedEmail = memberService.checkEmailDuplicate(requestForm);
+        System.out.println("isDuplicatedEmail: " + isDuplicatedEmail);
+
+        // 중복이면 성공
+        assertEquals(isDuplicatedEmail, true);
+    }
 }

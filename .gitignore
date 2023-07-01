@@ -40,3 +40,4 @@ out/
 application.yaml
 docker-compose.yml
 redis.cnf
+application.properties

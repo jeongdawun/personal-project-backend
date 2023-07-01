@@ -1,6 +1,7 @@
 package com.happycamper.backend.member;
 
 import com.happycamper.backend.member.controller.form.BusinessMemberRegisterForm;
+import com.happycamper.backend.member.controller.form.CheckEmailAuthorizationRequestForm;
 import com.happycamper.backend.member.controller.form.CheckEmailDuplicateRequestForm;
 import com.happycamper.backend.member.controller.form.NormalMemberRegisterForm;
 import com.happycamper.backend.member.entity.RoleType;
@@ -13,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static com.happycamper.backend.member.entity.RoleType.BUSINESS;
 import static com.happycamper.backend.member.entity.RoleType.NORMAL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 public class MemberTest {
@@ -61,5 +63,17 @@ public class MemberTest {
         Boolean isCompleteSignUpNormal = memberService.businessMemberRegister(requestForm.toBusinessMemberRegisterRequest());
 
         assertEquals(isCompleteSignUpNormal, true);
+    }
+
+    @Test
+    @DisplayName("이메일 사용 가능 여부 확인")
+    void 이메일_사용_가능_여부_확인 () {
+        // 사용자가 입력한 이메일
+        final String userEmail = "jeongdawun33@gmail.com";
+
+        CheckEmailAuthorizationRequestForm requestForm = new CheckEmailAuthorizationRequestForm(userEmail);
+        String authCode = memberService.checkEmailAuthorize(requestForm);
+
+        assertTrue(authCode != null);
     }
 }

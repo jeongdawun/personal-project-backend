@@ -1,6 +1,8 @@
 package com.happycamper.backend.member.service;
 
+import com.happycamper.backend.member.controller.form.CheckEmailAuthorizationRequestForm;
 import com.happycamper.backend.member.controller.form.CheckEmailDuplicateRequestForm;
+import com.happycamper.backend.member.entity.Email;
 import com.happycamper.backend.member.entity.Member;
 import com.happycamper.backend.member.entity.MemberRole;
 import com.happycamper.backend.member.entity.Role;
@@ -23,6 +25,7 @@ public class MemberServiceImpl implements MemberService{
     final private MemberRepository memberRepository;
     final private MemberRoleRepository memberRoleRepository;
     final private RoleRepository roleRepository;
+    final EmailService emailService;
 
     // 일반 회원의 회원가입
     @Override
@@ -66,5 +69,13 @@ public class MemberServiceImpl implements MemberService{
         memberRoleRepository.save(memberRole);
 
         return true;
+    }
+
+    // 이메일 사용 가능 여부 확인
+    @Override
+    public String checkEmailAuthorize(CheckEmailAuthorizationRequestForm requestForm) {
+        Email email = emailService.createEmail(requestForm.getEmail());
+        String authCode = emailService.sendEmail(email);
+        return authCode;
     }
 }

@@ -1,11 +1,10 @@
 package com.happycamper.backend.member;
 
-import com.happycamper.backend.member.controller.form.BusinessMemberRegisterForm;
-import com.happycamper.backend.member.controller.form.CheckEmailAuthorizationRequestForm;
-import com.happycamper.backend.member.controller.form.CheckEmailDuplicateRequestForm;
-import com.happycamper.backend.member.controller.form.NormalMemberRegisterForm;
+import com.happycamper.backend.member.controller.form.*;
 import com.happycamper.backend.member.entity.RoleType;
+import com.happycamper.backend.member.entity.userProfile.UserProfile;
 import com.happycamper.backend.member.service.MemberService;
+import com.happycamper.backend.member.service.request.UserProfileRegisterRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,5 +74,23 @@ public class MemberTest {
         String authCode = memberService.checkEmailAuthorize(requestForm);
 
         assertTrue(authCode != null);
+    }
+
+    @Test
+    @DisplayName("일반 회원의 프로필 생성")
+    void 일반_회원의_프로필_생성 () {
+        final Long accountId = 1L;
+        final String name = "정다운";
+        final Long contactNumber = null;
+        final String nickName = null;
+        final String birthday = null;
+
+        UserProfileRegisterRequestForm requestForm =
+                new UserProfileRegisterRequestForm(name, contactNumber, nickName, birthday);
+        UserProfileRegisterRequest registerRequest = requestForm.toUserProfileRegisterRequest();
+
+        UserProfile userProfile = memberService.addProfile(accountId, registerRequest);
+
+        assertEquals(userProfile.getName(), name);
     }
 }

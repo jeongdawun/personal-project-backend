@@ -1,5 +1,6 @@
 package com.happycamper.backend.member.controller;
 
+import com.happycamper.backend.member.controller.form.CheckEmailAuthorizationRequestForm;
 import com.happycamper.backend.member.controller.form.CheckEmailDuplicateRequestForm;
 import com.happycamper.backend.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -21,5 +22,12 @@ public class MemberController {
         Boolean isDuplicatedEmail = memberService.checkEmailDuplicate(requestForm);
 
         return isDuplicatedEmail;
+    }
+
+    @PostMapping("/check-email-authorize")
+    public String checkEmailAuthorize(@RequestBody CheckEmailAuthorizationRequestForm requestForm) {
+        String authCode = memberService.checkEmailAuthorize(requestForm);
+
+        return authCode;
     }
 }

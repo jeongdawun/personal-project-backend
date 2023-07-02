@@ -1,10 +1,14 @@
 package com.happycamper.backend.member.controller.form;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 
 @Getter
-@RequiredArgsConstructor
+@NoArgsConstructor
 public class CheckEmailAuthorizationRequestForm {
-    final private String email;
+    private String email;
+
+    public CheckEmailAuthorizationRequestForm(String email) {
+        this.email = email;
+    }
 }

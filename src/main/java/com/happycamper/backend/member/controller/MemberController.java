@@ -2,6 +2,7 @@ package com.happycamper.backend.member.controller;
 
 import com.happycamper.backend.member.controller.form.CheckEmailAuthorizationRequestForm;
 import com.happycamper.backend.member.controller.form.CheckEmailDuplicateRequestForm;
+import com.happycamper.backend.member.controller.form.NormalMemberRegisterForm;
 import com.happycamper.backend.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,5 +30,12 @@ public class MemberController {
         String authCode = memberService.checkEmailAuthorize(requestForm);
 
         return authCode;
+    }
+
+    @PostMapping("/signup-normal")
+    public Boolean signupNormal(@RequestBody NormalMemberRegisterForm requestForm) {
+        Boolean isCompleteSignupMember = memberService.normalMemberRegister(requestForm.toNormalMemberRegisterRequest());
+
+        return isCompleteSignupMember;
     }
 }

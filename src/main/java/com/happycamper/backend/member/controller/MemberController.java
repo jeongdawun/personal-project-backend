@@ -1,5 +1,6 @@
 package com.happycamper.backend.member.controller;
 
+import com.happycamper.backend.member.controller.form.BusinessMemberRegisterForm;
 import com.happycamper.backend.member.controller.form.CheckEmailAuthorizationRequestForm;
 import com.happycamper.backend.member.controller.form.CheckEmailDuplicateRequestForm;
 import com.happycamper.backend.member.controller.form.NormalMemberRegisterForm;
@@ -35,6 +36,13 @@ public class MemberController {
     @PostMapping("/signup-normal")
     public Boolean signupNormal(@RequestBody NormalMemberRegisterForm requestForm) {
         Boolean isCompleteSignupMember = memberService.normalMemberRegister(requestForm.toNormalMemberRegisterRequest());
+
+        return isCompleteSignupMember;
+    }
+
+    @PostMapping("/signup-business")
+    public Boolean signupBusiness(@RequestBody BusinessMemberRegisterForm requestForm) {
+        Boolean isCompleteSignupMember = memberService.businessMemberRegister(requestForm.toBusinessMemberRegisterRequest());
 
         return isCompleteSignupMember;
     }

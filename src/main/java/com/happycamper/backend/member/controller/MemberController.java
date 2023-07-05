@@ -46,4 +46,9 @@ public class MemberController {
     public void login(@RequestBody MemberLoginRequestForm requestForm, HttpServletResponse response) {
         memberService.login(requestForm, response);
     }
+
+    @PostMapping("/auth")
+    public Boolean authorize(@RequestBody AuthRequestForm requestForm) {
+        return memberService.authorize(requestForm);
+    }
 }

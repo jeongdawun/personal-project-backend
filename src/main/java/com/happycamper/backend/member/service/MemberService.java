@@ -9,6 +9,8 @@ import com.happycamper.backend.member.service.request.SellerInfoRegisterRequest;
 import com.happycamper.backend.member.service.request.UserProfileRegisterRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.util.List;
+
 public interface MemberService {
 
     Boolean normalMemberRegister(NormalMemberRegisterRequest request);
@@ -18,4 +20,5 @@ public interface MemberService {
     UserProfile addProfile(Long accountId, UserProfileRegisterRequest registerRequest);
     SellerInfo addSellerInfo(Long accountId, SellerInfoRegisterRequest request);
     void login(MemberLoginRequestForm requestForm, HttpServletResponse response);
+    Boolean authorize(AuthRequestForm requestForm);
 }

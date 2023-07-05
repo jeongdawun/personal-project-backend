@@ -16,11 +16,14 @@ import com.happycamper.backend.member.service.request.BusinessMemberRegisterRequ
 import com.happycamper.backend.member.service.request.NormalMemberRegisterRequest;
 import com.happycamper.backend.member.service.request.SellerInfoRegisterRequest;
 import com.happycamper.backend.member.service.request.UserProfileRegisterRequest;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -165,5 +168,16 @@ public class MemberServiceImpl implements MemberService{
                 System.out.println("accessToken + refreshToken: " + tokens);
             }
         }
+    }
+
+    // 사용자 인증
+    @Override
+    public Boolean authorize(AuthRequestForm requestForm) {
+        System.out.println("검증할 토큰: " + requestForm.getAuthorizationHeader());
+
+        String token = requestForm.getAuthorizationHeader();
+        Claims claims = jwtTokenService.parseJwtToken(token);
+        System.out.println("Claims: " + claims);
+        return true;
     }
 }

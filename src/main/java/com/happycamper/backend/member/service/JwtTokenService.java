@@ -1,5 +1,6 @@
 package com.happycamper.backend.member.service;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
@@ -42,5 +43,12 @@ public class JwtTokenService {
                 .setExpiration(new Date(System.currentTimeMillis() + 366 * 60 * 60 * 1000))
                 .compact();
         return token;
+    }
+
+    public Claims parseJwtToken(String token) {
+        return Jwts.parser()
+                .setSigningKey(finalSecretKey)
+                .parseClaimsJws(token)
+                .getBody();
     }
 }

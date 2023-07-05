@@ -11,13 +11,16 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class EmailService {
-    @Autowired
     private final JavaMailSender emailSender;
-    @Value("${spring.mail.username}")
-    String adminEmail;
+    private final String adminEmail;
+
+    @Autowired
+    public EmailService(JavaMailSender emailSender, @Value("${spring.mail.username}") String adminEmail) {
+        this.emailSender = emailSender;
+        this.adminEmail = adminEmail;
+    }
 
     // 인증코드를 포함한 이메일 전송
     public String sendEmail(Email email) {

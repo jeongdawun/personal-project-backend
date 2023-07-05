@@ -41,3 +41,4 @@ application.yaml
 docker-compose.yml
 redis.cnf
 application.properties
+redis.properties

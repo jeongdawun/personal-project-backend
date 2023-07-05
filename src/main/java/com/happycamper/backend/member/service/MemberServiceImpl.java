@@ -36,7 +36,7 @@ public class MemberServiceImpl implements MemberService{
     final private UserProfileRepository userProfileRepository;
     final private SellerInfoRepository sellerInfoRepository;
     final private RoleRepository roleRepository;
-    final EmailService emailService;
+//    final EmailService emailService;
     final JwtTokenService jwtTokenService;
     final RedisService redisService;
 
@@ -85,12 +85,12 @@ public class MemberServiceImpl implements MemberService{
     }
 
     // 이메일 사용 가능 여부 확인
-    @Override
-    public String checkEmailAuthorize(CheckEmailAuthorizationRequestForm requestForm) {
-        Email email = emailService.createEmail(requestForm.getEmail());
-        String authCode = emailService.sendEmail(email);
-        return authCode;
-    }
+//    @Override
+//    public String checkEmailAuthorize(CheckEmailAuthorizationRequestForm requestForm) {
+//        Email email = emailService.createEmail(requestForm.getEmail());
+//        String authCode = emailService.sendEmail(email);
+//        return authCode;
+//    }
 
     // 일반 회원의 회원 프로필 생성
     @Override

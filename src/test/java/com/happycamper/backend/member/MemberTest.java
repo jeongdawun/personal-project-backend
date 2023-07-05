@@ -67,17 +67,17 @@ public class MemberTest {
         assertEquals(isCompleteSignUpNormal, true);
     }
 
-    @Test
-    @DisplayName("이메일 사용 가능 여부 확인")
-    void 이메일_사용_가능_여부_확인 () {
-        // 사용자가 입력한 이메일
-        final String userEmail = "jeongdawun33@gmail.com";
-
-        CheckEmailAuthorizationRequestForm requestForm = new CheckEmailAuthorizationRequestForm(userEmail);
-        String authCode = memberService.checkEmailAuthorize(requestForm);
-
-        assertTrue(authCode != null);
-    }
+//    @Test
+//    @DisplayName("이메일 사용 가능 여부 확인")
+//    void 이메일_사용_가능_여부_확인 () {
+//        // 사용자가 입력한 이메일
+//        final String userEmail = "jeongdawun33@gmail.com";
+//
+//        CheckEmailAuthorizationRequestForm requestForm = new CheckEmailAuthorizationRequestForm(userEmail);
+//        String authCode = memberService.checkEmailAuthorize(requestForm);
+//
+//        assertTrue(authCode != null);
+//    }
 
     @Test
     @DisplayName("일반 회원의 프로필 생성")

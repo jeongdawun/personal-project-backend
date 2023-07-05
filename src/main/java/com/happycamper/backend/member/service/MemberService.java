@@ -16,7 +16,7 @@ public interface MemberService {
     Boolean normalMemberRegister(NormalMemberRegisterRequest request);
     Boolean checkEmailDuplicate(CheckEmailDuplicateRequestForm requestForm);
     Boolean businessMemberRegister(BusinessMemberRegisterRequest toBusinessMemberRegisterRequest);
-    String checkEmailAuthorize(CheckEmailAuthorizationRequestForm requestForm);
+//    String checkEmailAuthorize(CheckEmailAuthorizationRequestForm requestForm);
     UserProfile addProfile(Long accountId, UserProfileRegisterRequest registerRequest);
     SellerInfo addSellerInfo(Long accountId, SellerInfoRegisterRequest request);
     void login(MemberLoginRequestForm requestForm, HttpServletResponse response);

@@ -1,7 +1,6 @@
 package com.happycamper.backend.member.service;
 
 import com.happycamper.backend.member.controller.form.*;
-import com.happycamper.backend.member.entity.Email;
 import com.happycamper.backend.member.entity.Member;
 import com.happycamper.backend.member.entity.MemberRole;
 import com.happycamper.backend.member.entity.Role;
@@ -22,8 +21,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -37,7 +34,7 @@ public class MemberServiceImpl implements MemberService{
     final private SellerInfoRepository sellerInfoRepository;
     final private RoleRepository roleRepository;
 //    final EmailService emailService;
-    final JwtTokenService jwtTokenService;
+    final JwtTokenServiceImpl jwtTokenServiceImpl;
     final RedisService redisService;
 
     // 일반 회원의 회원가입
@@ -158,8 +155,8 @@ public class MemberServiceImpl implements MemberService{
 
                 final Member member = maybeMember.get();
 
-                String accessToken = jwtTokenService.generateAccessToken();
-                String refreshToken = jwtTokenService.generateRefreshToken();
+                String accessToken = jwtTokenServiceImpl.generateAccessToken();
+                String refreshToken = jwtTokenServiceImpl.generateRefreshToken();
                 redisService.setKeyAndValue(refreshToken, member.getId());
 
                 String tokens = "Bearer " + accessToken + " " + refreshToken;
@@ -176,7 +173,7 @@ public class MemberServiceImpl implements MemberService{
         System.out.println("검증할 토큰: " + requestForm.getAuthorizationHeader());
 
         String token = requestForm.getAuthorizationHeader();
-        Claims claims = jwtTokenService.parseJwtToken(token);
+        Claims claims = jwtTokenServiceImpl.parseJwtToken(token);
         System.out.println("Claims: " + claims);
         return true;
     }

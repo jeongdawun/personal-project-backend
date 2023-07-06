@@ -155,8 +155,8 @@ public class MemberServiceImpl implements MemberService{
 
                 final Member member = maybeMember.get();
 
-                String accessToken = jwtTokenService.generateAccessToken();
-                String refreshToken = jwtTokenService.generateRefreshToken();
+                String accessToken = jwtTokenService.generateAccessToken(requestForm.getEmail());
+                String refreshToken = jwtTokenService.generateRefreshToken(requestForm.getEmail());
                 redisService.setKeyAndValue(refreshToken, member.getId());
 
                 String tokens = "Bearer " + accessToken + " " + refreshToken;

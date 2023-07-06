@@ -12,13 +12,13 @@ import org.springframework.stereotype.Service;
 import java.util.Base64;
 import java.util.Date;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class JwtTokenServiceImpl implements JwtTokenService{
 
-    @Value("${jwt.password}")
-    String secretKey;
+//    @Value("${jwt.password}")
+    String secretKey = "happycamperhappycamperhappycamperhappycamper";
     String finalSecretKey;
     public String generateAccessToken() {
 

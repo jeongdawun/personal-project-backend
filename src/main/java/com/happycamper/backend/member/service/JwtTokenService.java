@@ -16,10 +16,9 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class JwtTokenService {
 
-//    @Value("${jwt.password}")
-//    String secretKey;
+    @Value("${jwt.password}")
+    String secretKey;
 
-    String secretKey = "happycamperhappycamperhappycamperhappycamper";
     String finalSecretKey;
 
     public String generateAccessToken(String email) {

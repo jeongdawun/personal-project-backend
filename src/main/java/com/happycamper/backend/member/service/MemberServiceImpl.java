@@ -34,7 +34,7 @@ public class MemberServiceImpl implements MemberService{
     final private SellerInfoRepository sellerInfoRepository;
     final private RoleRepository roleRepository;
 //    final EmailService emailService;
-    final JwtTokenServiceImpl jwtTokenServiceImpl;
+    final JwtTokenService jwtTokenService;
     final RedisService redisService;
 
     // 일반 회원의 회원가입
@@ -155,8 +155,8 @@ public class MemberServiceImpl implements MemberService{
 
                 final Member member = maybeMember.get();
 
-                String accessToken = jwtTokenServiceImpl.generateAccessToken();
-                String refreshToken = jwtTokenServiceImpl.generateRefreshToken();
+                String accessToken = jwtTokenService.generateAccessToken();
+                String refreshToken = jwtTokenService.generateRefreshToken();
                 redisService.setKeyAndValue(refreshToken, member.getId());
 
                 String tokens = "Bearer " + accessToken + " " + refreshToken;
@@ -173,7 +173,7 @@ public class MemberServiceImpl implements MemberService{
         System.out.println("검증할 토큰: " + requestForm.getAuthorizationHeader());
 
         String token = requestForm.getAuthorizationHeader();
-        Claims claims = jwtTokenServiceImpl.parseJwtToken(token);
+        Claims claims = jwtTokenService.parseJwtToken(token);
         System.out.println("Claims: " + claims);
         return true;
     }

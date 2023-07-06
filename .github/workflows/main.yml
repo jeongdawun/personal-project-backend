@@ -48,8 +48,8 @@ jobs:
           mkdir -p src/main/resources
           cd src/main/resources
           pwd
-          echo "${{ secrets.APP_PROPERTIES }}" > application.properties
-          cat application.properties
+          echo "${{ secrets.APP_PROPERTIES }}" > src/main/resources/application.properties
+          cat src/main/resources/application.properties
           
       - name: Create application.yaml for CD Deploy
         run: |

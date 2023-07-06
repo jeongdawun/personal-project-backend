@@ -1,10 +1,7 @@
 package com.happycamper.backend.member.service;
 
 import com.happycamper.backend.member.controller.form.*;
-import com.happycamper.backend.member.entity.Member;
-import com.happycamper.backend.member.entity.MemberRole;
-import com.happycamper.backend.member.entity.Role;
-import com.happycamper.backend.member.entity.RoleType;
+import com.happycamper.backend.member.entity.*;
 import com.happycamper.backend.member.entity.sellerInfo.SellerInfo;
 import com.happycamper.backend.member.entity.userProfile.UserProfile;
 import com.happycamper.backend.member.repository.MemberRepository;
@@ -34,7 +31,7 @@ public class MemberServiceImpl implements MemberService{
     final private UserProfileRepository userProfileRepository;
     final private SellerInfoRepository sellerInfoRepository;
     final private RoleRepository roleRepository;
-//    final EmailService emailService;
+    final EmailService emailService;
     final JwtTokenService jwtTokenService;
     final RedisService redisService;
 
@@ -83,12 +80,12 @@ public class MemberServiceImpl implements MemberService{
     }
 
     // 이메일 사용 가능 여부 확인
-//    @Override
-//    public String checkEmailAuthorize(CheckEmailAuthorizationRequestForm requestForm) {
-//        Email email = emailService.createEmail(requestForm.getEmail());
-//        String authCode = emailService.sendEmail(email);
-//        return authCode;
-//    }
+    @Override
+    public String checkEmailAuthorize(CheckEmailAuthorizationRequestForm requestForm) {
+        Email email = emailService.createEmail(requestForm.getEmail());
+        String authCode = emailService.sendEmail(email);
+        return authCode;
+    }
 
     // 일반 회원의 회원 프로필 생성
     @Override

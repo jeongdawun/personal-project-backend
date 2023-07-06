@@ -21,12 +21,12 @@ public class MemberController {
         return isDuplicatedEmail;
     }
 
-//    @PostMapping("/check-email-authorize")
-//    public String checkEmailAuthorize(@RequestBody CheckEmailAuthorizationRequestForm requestForm) {
-//        String authCode = memberService.checkEmailAuthorize(requestForm);
-//
-//        return authCode;
-//    }
+    @PostMapping("/check-email-authorize")
+    public String checkEmailAuthorize(@RequestBody CheckEmailAuthorizationRequestForm requestForm) {
+        String authCode = memberService.checkEmailAuthorize(requestForm);
+
+        return authCode;
+    }
 
     @PostMapping("/signup-normal")
     public Boolean signupNormal(@RequestBody NormalMemberRegisterForm requestForm) {

@@ -4,6 +4,7 @@ import com.happycamper.backend.member.controller.form.*;
 import com.happycamper.backend.member.entity.Member;
 import com.happycamper.backend.member.entity.MemberRole;
 import com.happycamper.backend.member.entity.Role;
+import com.happycamper.backend.member.entity.RoleType;
 import com.happycamper.backend.member.entity.sellerInfo.SellerInfo;
 import com.happycamper.backend.member.entity.userProfile.UserProfile;
 import com.happycamper.backend.member.repository.MemberRepository;
@@ -169,12 +170,12 @@ public class MemberServiceImpl implements MemberService{
 
     // 사용자 인증
     @Override
-    public Boolean authorize(AuthRequestForm requestForm) {
+    public String authorize(AuthRequestForm requestForm) {
         System.out.println("검증할 토큰: " + requestForm.getAuthorizationHeader());
 
         String token = requestForm.getAuthorizationHeader();
         Claims claims = jwtTokenService.parseJwtToken(token);
         System.out.println("Claims: " + claims);
-        return true;
+        return claims.getSubject();
     }
 }

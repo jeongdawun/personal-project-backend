@@ -20,5 +20,5 @@ public interface MemberService {
     UserProfile addProfile(Long accountId, UserProfileRegisterRequest registerRequest);
     SellerInfo addSellerInfo(Long accountId, SellerInfoRegisterRequest request);
     void login(MemberLoginRequestForm requestForm, HttpServletResponse response);
-    Boolean authorize(AuthRequestForm requestForm);
+    String authorize(AuthRequestForm requestForm);
 }

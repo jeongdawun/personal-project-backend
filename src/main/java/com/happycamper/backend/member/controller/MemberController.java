@@ -48,7 +48,7 @@ public class MemberController {
     }
 
     @PostMapping("/auth")
-    public Boolean authorize(@RequestBody AuthRequestForm requestForm) {
+    public String authorize(@RequestBody AuthRequestForm requestForm) {
         return memberService.authorize(requestForm);
     }
 }

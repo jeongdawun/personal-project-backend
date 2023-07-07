@@ -61,6 +61,18 @@ public class MemberServiceImpl implements MemberService{
         return false;
     }
 
+    // 사업자 번호 중복 확인
+    @Override
+    public Boolean checkBusinessNumberDuplicate(CheckBusinessNumberDuplicateRequestForm requestForm) {
+        // 존재하는 사업자 번호인지 확인
+        Optional<MemberRole> maybeMemberRole = memberRoleRepository.findByBusinessNumber(requestForm.getBusinessNumber());
+
+        if(maybeMemberRole.isPresent()) {
+            return true;
+        }
+        return false;
+    }
+
     // 사업자 회원의 회원가입
     @Override
     public Boolean businessMemberRegister(BusinessMemberRegisterRequest request) {

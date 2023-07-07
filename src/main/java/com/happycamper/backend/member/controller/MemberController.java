@@ -21,6 +21,13 @@ public class MemberController {
         return isDuplicatedEmail;
     }
 
+    @PostMapping("/check-businessNumber-duplicate")
+    public Boolean checkEmailDuplicate(@RequestBody CheckBusinessNumberDuplicateRequestForm requestForm) {
+        Boolean isDuplicatedBusinessNumber = memberService.checkBusinessNumberDuplicate(requestForm);
+
+        return isDuplicatedBusinessNumber;
+    }
+
     @PostMapping("/check-email-authorize")
     public String checkEmailAuthorize(@RequestBody CheckEmailAuthorizationRequestForm requestForm) {
         String authCode = memberService.checkEmailAuthorize(requestForm);

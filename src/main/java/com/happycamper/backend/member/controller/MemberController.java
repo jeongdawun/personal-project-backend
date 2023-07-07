@@ -2,6 +2,8 @@ package com.happycamper.backend.member.controller;
 
 import com.happycamper.backend.member.controller.form.*;
 import com.happycamper.backend.member.service.MemberService;
+import com.happycamper.backend.member.service.request.UserProfileRegisterRequest;
+import com.happycamper.backend.member.service.response.UserProfileResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +28,13 @@ public class MemberController {
         Boolean isDuplicatedBusinessNumber = memberService.checkBusinessNumberDuplicate(requestForm);
 
         return isDuplicatedBusinessNumber;
+    }
+
+    @PostMapping("/check-nickName-duplicate")
+    public Boolean checkNickNameDuplicate(@RequestBody CheckNickNameDuplicateRequestForm requestForm) {
+        Boolean isDuplicatedNickName = memberService.checkNickNameDuplicate(requestForm);
+
+        return isDuplicatedNickName;
     }
 
     @PostMapping("/check-email-authorize")
@@ -57,5 +66,16 @@ public class MemberController {
     @PostMapping("/auth")
     public String authorize(@RequestBody AuthRequestForm requestForm) {
         return memberService.authorize(requestForm);
+    }
+
+    @PostMapping("/auth-userProfile")
+    public UserProfileResponse authorizeForUserProfile(@RequestBody AuthRequestForm requestForm) {
+        return memberService.authorizeForUserProfile(requestForm);
+    }
+
+    @PostMapping("/profile-register")
+    public Boolean authorize(@RequestBody UserProfileRegisterRequestForm requestForm) {
+        UserProfileRegisterRequest request = requestForm.toUserProfileRegisterRequest();
+        return memberService.addProfile(request);
     }
 }

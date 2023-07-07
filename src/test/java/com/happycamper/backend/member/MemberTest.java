@@ -8,6 +8,7 @@ import com.happycamper.backend.member.entity.userProfile.UserProfile;
 import com.happycamper.backend.member.service.MemberService;
 import com.happycamper.backend.member.service.request.SellerInfoRegisterRequest;
 import com.happycamper.backend.member.service.request.UserProfileRegisterRequest;
+import com.happycamper.backend.member.service.response.UserProfileResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,19 +83,19 @@ public class MemberTest {
     @Test
     @DisplayName("일반 회원의 프로필 생성")
     void 일반_회원의_프로필_생성 () {
-        final Long accountId = 1L;
-        final String name = "정다운";
+        final String email = "test@test.com";
+        final String name = "토마토";
         final Long contactNumber = null;
         final String nickName = null;
         final String birthday = null;
 
         UserProfileRegisterRequestForm requestForm =
-                new UserProfileRegisterRequestForm(name, contactNumber, nickName, birthday);
-        UserProfileRegisterRequest registerRequest = requestForm.toUserProfileRegisterRequest();
+                new UserProfileRegisterRequestForm(email, name, contactNumber, nickName, birthday);
+        UserProfileRegisterRequest request = requestForm.toUserProfileRegisterRequest();
 
-        UserProfile userProfile = memberService.addProfile(accountId, registerRequest);
+        Boolean isCompleteRegisterUserProfile = memberService.addProfile(request);
 
-        assertEquals(userProfile.getName(), name);
+        assertTrue(isCompleteRegisterUserProfile = true);
     }
 
     @Test

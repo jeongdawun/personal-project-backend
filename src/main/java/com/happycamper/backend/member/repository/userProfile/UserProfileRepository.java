@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface UserProfileRepository extends JpaRepository<UserProfile, Long> {
     @Query("select up FROM UserProfile up join fetch up.member m where m = :member")
     Optional<UserProfile> findUserProfileByMember(Member member);
+    Optional<UserProfile> findByNickName(String nickName);
 }

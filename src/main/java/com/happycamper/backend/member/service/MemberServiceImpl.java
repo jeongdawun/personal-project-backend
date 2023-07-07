@@ -13,6 +13,7 @@ import com.happycamper.backend.member.service.request.BusinessMemberRegisterRequ
 import com.happycamper.backend.member.service.request.NormalMemberRegisterRequest;
 import com.happycamper.backend.member.service.request.SellerInfoRegisterRequest;
 import com.happycamper.backend.member.service.request.UserProfileRegisterRequest;
+import com.happycamper.backend.member.service.response.UserProfileResponse;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -73,6 +74,18 @@ public class MemberServiceImpl implements MemberService{
         return false;
     }
 
+    // 닉네임 중복 확인
+    @Override
+    public Boolean checkNickNameDuplicate(CheckNickNameDuplicateRequestForm requestForm) {
+        // 존재하는 닉네임인지 확인
+        Optional<UserProfile> maybeUserProfile = userProfileRepository.findByNickName(requestForm.getNickName());
+
+        if(maybeUserProfile.isPresent()) {
+            return true;
+        }
+        return false;
+    }
+
     // 사업자 회원의 회원가입
     @Override
     public Boolean businessMemberRegister(BusinessMemberRegisterRequest request) {
@@ -101,10 +114,10 @@ public class MemberServiceImpl implements MemberService{
 
     // 일반 회원의 회원 프로필 생성
     @Override
-    public UserProfile addProfile(Long accountId, UserProfileRegisterRequest request) {
-        final Optional<Member> maybeMember = memberRepository.findById(accountId);
+    public Boolean addProfile(UserProfileRegisterRequest request) {
+        final Optional<Member> maybeMember = memberRepository.findByEmail(request.getEmail());
         if (maybeMember.isEmpty()) {
-            return null;
+            return false;
         }
         Member member = maybeMember.get();
 
@@ -113,7 +126,8 @@ public class MemberServiceImpl implements MemberService{
         if (maybeUserProfile.isEmpty()) {
             UserProfile userProfile =
                     new UserProfile(request.getName(), request.getContactNumber(), request.getNickName(), request.getBirthday(), member);
-            return userProfileRepository.save(userProfile);
+            userProfileRepository.save(userProfile);
+            return true;
         }
 
         UserProfile userProfile = maybeUserProfile.get();
@@ -124,7 +138,8 @@ public class MemberServiceImpl implements MemberService{
 
         System.out.println("UserProfile: " + userProfile);
 
-        return userProfileRepository.save(userProfile);
+        userProfileRepository.save(userProfile);
+        return true;
     }
 
     // 판매자 회원의 고객센터 정보 생성
@@ -186,5 +201,33 @@ public class MemberServiceImpl implements MemberService{
         Claims claims = jwtTokenService.parseJwtToken(token);
         System.out.println("Claims: " + claims);
         return claims.getSubject();
+    }
+
+    @Override
+    public UserProfileResponse authorizeForUserProfile(AuthRequestForm requestForm) {
+        System.out.println("검증할 토큰: " + requestForm.getAuthorizationHeader());
+
+        String token = requestForm.getAuthorizationHeader();
+        Claims claims = jwtTokenService.parseJwtToken(token);
+        String email = claims.getSubject();
+
+        Optional<Member> maybeMember = memberRepository.findByEmail(email);
+        if(maybeMember.isPresent()) {
+            Member member = maybeMember.get();
+            Optional<UserProfile> maybeUserProfile = userProfileRepository.findUserProfileByMember(member);
+            if(maybeUserProfile.isPresent()) {
+                UserProfile userProfile = maybeUserProfile.get();
+                UserProfileResponse response =
+                        new UserProfileResponse(
+                                email,
+                                userProfile.getName(),
+                                userProfile.getContactNumber(),
+                                userProfile.getNickName(),
+                                userProfile.getBirthday());
+
+                return response;
+            }
+        }
+        return null;
     }
 }

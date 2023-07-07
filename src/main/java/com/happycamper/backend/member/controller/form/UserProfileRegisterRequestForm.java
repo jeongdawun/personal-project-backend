@@ -7,12 +7,13 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class UserProfileRegisterRequestForm {
+    final private String email;
     final private String name;
     final private Long contactNumber;
     final private String nickName;
     final private String birthday;
 
     public UserProfileRegisterRequest toUserProfileRegisterRequest() {
-        return new UserProfileRegisterRequest(name, contactNumber, nickName, birthday);
+        return new UserProfileRegisterRequest(email, name, contactNumber, nickName, birthday);
     }
 }

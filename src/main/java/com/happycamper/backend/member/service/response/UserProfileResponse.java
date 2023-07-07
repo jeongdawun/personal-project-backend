@@ -1,11 +1,11 @@
-package com.happycamper.backend.member.service.request;
+package com.happycamper.backend.member.service.response;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class UserProfileRegisterRequest {
+public class UserProfileResponse {
     final private String email;
     final private String name;
     final private Long contactNumber;

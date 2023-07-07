@@ -7,6 +7,7 @@ import com.happycamper.backend.member.service.request.BusinessMemberRegisterRequ
 import com.happycamper.backend.member.service.request.NormalMemberRegisterRequest;
 import com.happycamper.backend.member.service.request.SellerInfoRegisterRequest;
 import com.happycamper.backend.member.service.request.UserProfileRegisterRequest;
+import com.happycamper.backend.member.service.response.UserProfileResponse;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.List;
@@ -16,10 +17,12 @@ public interface MemberService {
     Boolean normalMemberRegister(NormalMemberRegisterRequest request);
     Boolean checkEmailDuplicate(CheckEmailDuplicateRequestForm requestForm);
     Boolean checkBusinessNumberDuplicate(CheckBusinessNumberDuplicateRequestForm requestForm);
+    Boolean checkNickNameDuplicate(CheckNickNameDuplicateRequestForm requestForm);
     Boolean businessMemberRegister(BusinessMemberRegisterRequest toBusinessMemberRegisterRequest);
     String checkEmailAuthorize(CheckEmailAuthorizationRequestForm requestForm);
-    UserProfile addProfile(Long accountId, UserProfileRegisterRequest registerRequest);
+    Boolean addProfile(UserProfileRegisterRequest request);
     SellerInfo addSellerInfo(Long accountId, SellerInfoRegisterRequest request);
     void login(MemberLoginRequestForm requestForm, HttpServletResponse response);
     String authorize(AuthRequestForm requestForm);
+    UserProfileResponse authorizeForUserProfile(AuthRequestForm requestForm);
 }

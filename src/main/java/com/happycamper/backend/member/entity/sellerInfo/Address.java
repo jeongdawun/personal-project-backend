@@ -2,10 +2,12 @@ package com.happycamper.backend.member.entity.sellerInfo;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Embeddable
 @NoArgsConstructor
+@Getter
 public class Address {
     @Column(nullable = false)
     private String city;

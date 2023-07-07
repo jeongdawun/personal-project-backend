@@ -8,12 +8,24 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class SellerInfoRegisterRequestForm {
-    final private Address address;
+    final private String email;
+    final private String city;
+    final private String street;
+    final private String addressDetail;
+    final private String zipcode;
     final private Long contactNumber;
     final private String bank;
     final private Long accountNumber;
 
+//    public SellerInfoRegisterRequest toSellerInfoRegisterRequest() {
+//        return new SellerInfoRegisterRequest(email, address, contactNumber, bank, accountNumber);
+//    }
+
+    public Address toAddress() {
+        return new Address(city, street, addressDetail, zipcode);
+    }
     public SellerInfoRegisterRequest toSellerInfoRegisterRequest() {
-        return new SellerInfoRegisterRequest(address, contactNumber, bank, accountNumber);
+        Address address = toAddress();
+        return new SellerInfoRegisterRequest(email, address, contactNumber, bank, accountNumber);
     }
 }

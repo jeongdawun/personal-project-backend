@@ -15,6 +15,7 @@ public class SellerInfo {
     private Long id;
     @Embedded
     @Setter
+    @Column(nullable = true)
     private Address address;
     @Setter
     private Long contactNumber;
@@ -25,7 +26,7 @@ public class SellerInfo {
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "account_Id")
+    @JoinColumn(name = "member_Id")
     private Member member;
 
     public SellerInfo(Address address, Long contactNumber, String bank, Long accountNumber, Member member) {

@@ -2,7 +2,9 @@ package com.happycamper.backend.member.controller;
 
 import com.happycamper.backend.member.controller.form.*;
 import com.happycamper.backend.member.service.MemberService;
+import com.happycamper.backend.member.service.request.SellerInfoRegisterRequest;
 import com.happycamper.backend.member.service.request.UserProfileRegisterRequest;
+import com.happycamper.backend.member.service.response.SellerInfoResponse;
 import com.happycamper.backend.member.service.response.UserProfileResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -72,10 +74,19 @@ public class MemberController {
     public UserProfileResponse authorizeForUserProfile(@RequestBody AuthRequestForm requestForm) {
         return memberService.authorizeForUserProfile(requestForm);
     }
+    @PostMapping("/auth-sellerInfo")
+    public SellerInfoResponse authorizeForSellerInfo(@RequestBody AuthRequestForm requestForm) {
+        return memberService.authorizeForSellerInfo(requestForm);
+    }
 
     @PostMapping("/profile-register")
-    public Boolean authorize(@RequestBody UserProfileRegisterRequestForm requestForm) {
+    public Boolean userProfileRegister(@RequestBody UserProfileRegisterRequestForm requestForm) {
         UserProfileRegisterRequest request = requestForm.toUserProfileRegisterRequest();
         return memberService.addProfile(request);
+    }
+    @PostMapping("/sellerInfo-register")
+    public Boolean sellerInfoRegister(@RequestBody SellerInfoRegisterRequestForm requestForm) {
+        SellerInfoRegisterRequest request = requestForm.toSellerInfoRegisterRequest();
+        return memberService.addSellerInfo(request);
     }
 }

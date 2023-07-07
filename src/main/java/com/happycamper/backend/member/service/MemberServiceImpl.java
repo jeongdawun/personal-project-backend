@@ -13,6 +13,7 @@ import com.happycamper.backend.member.service.request.BusinessMemberRegisterRequ
 import com.happycamper.backend.member.service.request.NormalMemberRegisterRequest;
 import com.happycamper.backend.member.service.request.SellerInfoRegisterRequest;
 import com.happycamper.backend.member.service.request.UserProfileRegisterRequest;
+import com.happycamper.backend.member.service.response.SellerInfoResponse;
 import com.happycamper.backend.member.service.response.UserProfileResponse;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletResponse;
@@ -144,10 +145,10 @@ public class MemberServiceImpl implements MemberService{
 
     // 판매자 회원의 고객센터 정보 생성
     @Override
-    public SellerInfo addSellerInfo(Long accountId, SellerInfoRegisterRequest request) {
-        final Optional<Member> maybeMember = memberRepository.findById(accountId);
+    public Boolean addSellerInfo(SellerInfoRegisterRequest request) {
+        final Optional<Member> maybeMember = memberRepository.findByEmail(request.getEmail());
         if (maybeMember.isEmpty()) {
-            return null;
+            return false;
         }
         Member member = maybeMember.get();
 
@@ -156,7 +157,9 @@ public class MemberServiceImpl implements MemberService{
         if (maybeSellerInfo.isEmpty()) {
             SellerInfo sellerInfo =
                     new SellerInfo(request.getAddress(), request.getContactNumber(), request.getBank(), request.getAccountNumber(), member);
-            return sellerInfoRepository.save(sellerInfo);
+            System.out.println("궁금하다: " + sellerInfo);
+            sellerInfoRepository.save(sellerInfo);
+            return true;
         }
 
         SellerInfo sellerInfo = maybeSellerInfo.get();
@@ -167,7 +170,8 @@ public class MemberServiceImpl implements MemberService{
 
         System.out.println("SellerInfo: " + sellerInfo);
 
-        return sellerInfoRepository.save(sellerInfo);
+        sellerInfoRepository.save(sellerInfo);
+        return true;
     }
 
     // 회원의 로그인
@@ -227,6 +231,39 @@ public class MemberServiceImpl implements MemberService{
 
                 return response;
             }
+        }
+        return null;
+    }
+
+    @Override
+    public SellerInfoResponse authorizeForSellerInfo(AuthRequestForm requestForm) {
+        System.out.println("검증할 토큰: " + requestForm.getAuthorizationHeader());
+
+        String token = requestForm.getAuthorizationHeader();
+        Claims claims = jwtTokenService.parseJwtToken(token);
+        String email = claims.getSubject();
+
+        Optional<Member> maybeMember = memberRepository.findByEmail(email);
+        if(maybeMember.isPresent()) {
+            Member member = maybeMember.get();
+            Optional<SellerInfo> maybeSellerInfo = sellerInfoRepository.findSellerInfoByMember(member);
+            if(maybeSellerInfo.isPresent()) {
+                SellerInfo sellerInfo = maybeSellerInfo.get();
+                SellerInfoResponse response =
+                        new SellerInfoResponse(
+                                email,
+                                sellerInfo.getAddress().getCity(),
+                                sellerInfo.getAddress().getStreet(),
+                                sellerInfo.getAddress().getAddressDetail(),
+                                sellerInfo.getAddress().getZipcode(),
+                                sellerInfo.getContactNumber(),
+                                sellerInfo.getBank(),
+                                sellerInfo.getAccountNumber());
+
+                System.out.println("response: " + response);
+                return response;
+            }
+            return null;
         }
         return null;
     }

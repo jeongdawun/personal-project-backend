@@ -5,9 +5,12 @@ import com.happycamper.backend.member.service.MemberService;
 import com.happycamper.backend.product.controller.form.CheckProductNameDuplicateRequestForm;
 import com.happycamper.backend.product.controller.form.ProductRegisterRequestForm;
 import com.happycamper.backend.product.service.ProductService;
+import com.happycamper.backend.product.service.response.ProductListResponseForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @Slf4j
@@ -37,5 +40,11 @@ public class ProductController {
     @DeleteMapping("/{id}")
     public void deleteProduct(@PathVariable("id") Long id) {
         productService.delete(id);
+    }
+
+    @GetMapping("/list")
+    public List<ProductListResponseForm> productList () {
+        List<ProductListResponseForm> ProductList = productService.list();
+        return ProductList;
     }
 }

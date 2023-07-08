@@ -7,8 +7,10 @@ import com.happycamper.backend.product.entity.*;
 import com.happycamper.backend.product.repository.*;
 import com.happycamper.backend.product.service.request.ProductOptionRegisterRequest;
 import com.happycamper.backend.product.service.request.ProductRegisterRequest;
+import com.happycamper.backend.product.service.response.ProductListResponseForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -118,5 +120,27 @@ public class ProductServiceImpl implements ProductService {
         productImageRepository.deleteAllByProductId(id);
         productMainImageRepository.deleteByProductId(id);
         productRepository.deleteById(id);
+    }
+
+    @Override
+    public List<ProductListResponseForm> list() {
+
+        List<Product> productList = productRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
+
+        List<ProductListResponseForm> responseFormList = new ArrayList<>();
+
+        for(Product product : productList) {
+            ProductOption productOption = productOptionRepository.findMinPriceOptionByProductId(product.getId());
+            Optional<ProductMainImage> productMainImage = productMainImageRepository.findById(product.getId());
+            if(productMainImage.isPresent()) {
+                ProductListResponseForm responseForm = new ProductListResponseForm(
+                        product.getProductName(),
+                        product.getCategory(),
+                        productMainImage.get().getMainImageName(),
+                        productOption.getOptionPrice());
+                responseFormList.add(responseForm);
+            }
+        }
+        return responseFormList;
     }
 }

@@ -247,11 +247,15 @@ public class MemberServiceImpl implements MemberService{
         if(maybeMember.isPresent()) {
             Member member = maybeMember.get();
             Optional<SellerInfo> maybeSellerInfo = sellerInfoRepository.findSellerInfoByMember(member);
+            Optional<MemberRole> maybeMemberRole = memberRoleRepository.findByMember(member);
+
             if(maybeSellerInfo.isPresent()) {
                 SellerInfo sellerInfo = maybeSellerInfo.get();
                 SellerInfoResponse response =
                         new SellerInfoResponse(
                                 email,
+                                maybeMemberRole.get().getBusinessNumber(),
+                                maybeMemberRole.get().getBusinessName(),
                                 sellerInfo.getAddress().getCity(),
                                 sellerInfo.getAddress().getStreet(),
                                 sellerInfo.getAddress().getAddressDetail(),
@@ -260,10 +264,19 @@ public class MemberServiceImpl implements MemberService{
                                 sellerInfo.getBank(),
                                 sellerInfo.getAccountNumber());
 
-                System.out.println("response: " + response);
                 return response;
             }
-            return null;
+
+            if(maybeSellerInfo.isEmpty()) {
+                if(maybeMemberRole.isPresent()) {
+                    SellerInfoResponse response =
+                            new SellerInfoResponse(
+                                    email,
+                                    maybeMemberRole.get().getBusinessNumber(),
+                                    maybeMemberRole.get().getBusinessName());
+                    return response;
+                }
+            }
         }
         return null;
     }

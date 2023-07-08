@@ -17,10 +17,6 @@ public class SellerInfoRegisterRequestForm {
     final private String bank;
     final private Long accountNumber;
 
-//    public SellerInfoRegisterRequest toSellerInfoRegisterRequest() {
-//        return new SellerInfoRegisterRequest(email, address, contactNumber, bank, accountNumber);
-//    }
-
     public Address toAddress() {
         return new Address(city, street, addressDetail, zipcode);
     }

@@ -4,6 +4,7 @@ import com.happycamper.backend.product.controller.form.CheckProductNameDuplicate
 import com.happycamper.backend.product.service.request.ProductOptionRegisterRequest;
 import com.happycamper.backend.product.service.request.ProductRegisterRequest;
 import com.happycamper.backend.product.service.response.ProductListResponseForm;
+import com.happycamper.backend.product.service.response.ProductReadResponseForm;
 
 import java.util.List;
 
@@ -12,4 +13,5 @@ public interface ProductService {
     Boolean register(String email, ProductRegisterRequest productRegisterRequest, ProductOptionRegisterRequest optionRegisterRequest);
     void delete(Long id);
     List<ProductListResponseForm> list();
+    ProductReadResponseForm read(Long id);
 }

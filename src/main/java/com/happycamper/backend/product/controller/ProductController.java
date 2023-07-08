@@ -6,6 +6,7 @@ import com.happycamper.backend.product.controller.form.CheckProductNameDuplicate
 import com.happycamper.backend.product.controller.form.ProductRegisterRequestForm;
 import com.happycamper.backend.product.service.ProductService;
 import com.happycamper.backend.product.service.response.ProductListResponseForm;
+import com.happycamper.backend.product.service.response.ProductReadResponseForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -46,5 +47,10 @@ public class ProductController {
     public List<ProductListResponseForm> productList () {
         List<ProductListResponseForm> ProductList = productService.list();
         return ProductList;
+    }
+
+    @GetMapping("/{id}")
+    public ProductReadResponseForm readProduct(@PathVariable("id") Long id) {
+        return productService.read(id);
     }
 }

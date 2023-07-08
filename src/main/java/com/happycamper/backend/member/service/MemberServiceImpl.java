@@ -280,4 +280,14 @@ public class MemberServiceImpl implements MemberService{
         }
         return null;
     }
+
+    @Override
+    public void logout(AuthRequestForm requestForm) {
+        System.out.println("검증할 토큰: " + requestForm.getAuthorizationHeader());
+
+        String token = requestForm.getAuthorizationHeader();
+        Claims claims = jwtTokenService.parseJwtToken(token);
+
+        redisService.deleteByKey(token);
+    }
 }

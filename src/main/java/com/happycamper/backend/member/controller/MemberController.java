@@ -74,6 +74,7 @@ public class MemberController {
     public UserProfileResponse authorizeForUserProfile(@RequestBody AuthRequestForm requestForm) {
         return memberService.authorizeForUserProfile(requestForm);
     }
+
     @PostMapping("/auth-sellerInfo")
     public SellerInfoResponse authorizeForSellerInfo(@RequestBody AuthRequestForm requestForm) {
         return memberService.authorizeForSellerInfo(requestForm);
@@ -84,9 +85,15 @@ public class MemberController {
         UserProfileRegisterRequest request = requestForm.toUserProfileRegisterRequest();
         return memberService.addProfile(request);
     }
+
     @PostMapping("/sellerInfo-register")
     public Boolean sellerInfoRegister(@RequestBody SellerInfoRegisterRequestForm requestForm) {
         SellerInfoRegisterRequest request = requestForm.toSellerInfoRegisterRequest();
         return memberService.addSellerInfo(request);
+    }
+
+    @PostMapping("/logout")
+    public void logout(@RequestBody AuthRequestForm requestForm) {
+        memberService.logout(requestForm);
     }
 }

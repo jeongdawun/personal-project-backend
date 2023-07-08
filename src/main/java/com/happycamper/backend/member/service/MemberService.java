@@ -27,4 +27,5 @@ public interface MemberService {
     String authorize(AuthRequestForm requestForm);
     UserProfileResponse authorizeForUserProfile(AuthRequestForm requestForm);
     SellerInfoResponse authorizeForSellerInfo(AuthRequestForm requestForm);
+    void logout(AuthRequestForm requestForm);
 }

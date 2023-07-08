@@ -7,4 +7,5 @@ import com.happycamper.backend.product.service.request.ProductRegisterRequest;
 public interface ProductService {
     Boolean checkProductNameDuplicate(CheckProductNameDuplicateRequestForm requestForm);
     Boolean register(String email, ProductRegisterRequest productRegisterRequest, ProductOptionRegisterRequest optionRegisterRequest);
+    void delete(Long id);
 }

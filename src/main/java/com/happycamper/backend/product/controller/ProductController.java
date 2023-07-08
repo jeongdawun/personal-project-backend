@@ -33,4 +33,9 @@ public class ProductController {
         String email = memberService.authorize(authRequestForm);
         return productService.register(email, requestForm.toProductRegisterRequest(), requestForm.toProductOptionRegisterRequest());
     }
+
+    @DeleteMapping("/{id}")
+    public void deleteProduct(@PathVariable("id") Long id) {
+        productService.delete(id);
+    }
 }

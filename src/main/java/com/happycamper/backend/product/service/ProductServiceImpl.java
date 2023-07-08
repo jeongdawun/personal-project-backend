@@ -107,4 +107,16 @@ public class ProductServiceImpl implements ProductService {
         return false;
     }
 
+    @Override
+    public void delete(Long id) {
+
+        List<ProductOption> productOptionList = productOptionRepository.findAllByProductId(id);
+        for(ProductOption productOption : productOptionList) {
+            optionsRepository.deleteAllByProductOptionId(productOption.getId());
+        }
+        productOptionRepository.deleteAllByProductId(id);
+        productImageRepository.deleteAllByProductId(id);
+        productMainImageRepository.deleteByProductId(id);
+        productRepository.deleteById(id);
+    }
 }

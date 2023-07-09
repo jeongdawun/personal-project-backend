@@ -213,6 +213,10 @@ public class MemberServiceImpl implements MemberService{
 
         String token = requestForm.getAuthorizationHeader();
         Claims claims = jwtTokenService.parseJwtToken(token);
+
+        if(claims == null) {
+            return null;
+        }
         System.out.println("Claims: " + claims);
 
         String email = claims.getSubject();
@@ -322,6 +326,7 @@ public class MemberServiceImpl implements MemberService{
             for (Cookie cookie : cookies) {
                 if (cookie.getName().equals("RefreshToken")) {
                     String refreshToken = cookie.getValue();
+                    System.out.println("refreshToken by cookie: " + refreshToken);
 
                     Claims claims = jwtTokenService.parseJwtToken(refreshToken);
                     String email = claims.getSubject();

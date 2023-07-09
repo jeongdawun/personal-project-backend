@@ -53,12 +53,17 @@ public class JwtTokenService {
                     .setSigningKey(finalSecretKey)
                     .parseClaimsJws(token)
                     .getBody();
-        } catch (ExpiredJwtException e) {
-            throw new Exceptions("만료 토큰", e);
-        } catch (MalformedJwtException e) {
-            throw new Exceptions("형식 확인 필요", e);
-        } catch (SignatureException e) {
-            throw new Exceptions("서명 확인 필요", e);
+        } catch (Exception e) {
+            System.out.println("exception!!!!!!!");
+            return null;
         }
+
+//        catch (ExpiredJwtException e) {
+//            throw new Exceptions("만료 토큰", e);
+//        } catch (MalformedJwtException e) {
+//            throw new Exceptions("형식 확인 필요", e);
+//        } catch (SignatureException e) {
+//            throw new Exceptions("서명 확인 필요", e);
+//        }
     }
 }

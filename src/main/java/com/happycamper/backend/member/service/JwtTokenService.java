@@ -1,5 +1,6 @@
 package com.happycamper.backend.member.service;
 
+import com.happycamper.backend.member.entity.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -35,12 +36,11 @@ public class JwtTokenService {
         return token;
     }
 
-    public String generateRefreshToken(String email) {
+    public String generateRefreshToken() {
 
         String token = Jwts.builder()
                 .setHeaderParam("alg", "HS256")
                 .setHeaderParam("typ", "JWT")
-                .setSubject(email)
                 .signWith(SignatureAlgorithm.HS256, finalSecretKey)
                 .setExpiration(new Date(System.currentTimeMillis() + 366 * 60 * 60 * 1000))
                 .compact();

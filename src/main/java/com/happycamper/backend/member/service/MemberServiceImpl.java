@@ -16,6 +16,7 @@ import com.happycamper.backend.member.service.request.UserProfileRegisterRequest
 import com.happycamper.backend.member.service.response.SellerInfoResponse;
 import com.happycamper.backend.member.service.response.UserProfileResponse;
 import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -185,13 +186,20 @@ public class MemberServiceImpl implements MemberService{
                 final Member member = maybeMember.get();
 
                 String accessToken = jwtTokenService.generateAccessToken(requestForm.getEmail());
-                String refreshToken = jwtTokenService.generateRefreshToken(requestForm.getEmail());
+                String refreshToken = jwtTokenService.generateRefreshToken();
                 redisService.setKeyAndValue(refreshToken, member.getId());
 
-                String tokens = "Bearer " + accessToken + " " + refreshToken;
+                System.out.println("accessToken: " + accessToken);
+                System.out.println("refreshToken: " + refreshToken);
 
-                response.setHeader("Authorization", tokens);
-                System.out.println("accessToken + refreshToken: " + tokens);
+                String token = "Bearer " + accessToken;
+
+                response.setHeader("Authorization", token);
+
+                Cookie cookie = new Cookie("RefreshToken", refreshToken);
+                cookie.setMaxAge(60 * 60 * 24 * 14);
+                cookie.setHttpOnly(true);
+                response.addCookie(cookie);
             }
         }
     }

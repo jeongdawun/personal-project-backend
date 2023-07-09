@@ -15,7 +15,7 @@ public class ProductRegisterRequestForm {
 
     final private String accessToken;
     final private String productName;
-    final private Integer category;
+    final private String category;
     final private String productDetails;
     final private String city;
     final private String street;

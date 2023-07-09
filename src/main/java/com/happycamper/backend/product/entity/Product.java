@@ -18,7 +18,7 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String productName;
-    private Integer category;
+    private String category;
     private String productDetails;
     @Embedded
     @Setter
@@ -30,7 +30,7 @@ public class Product {
     @Setter
     private Member member;
 
-    public Product(String productName, Integer category, String productDetails, Address address) {
+    public Product(String productName, String category, String productDetails, Address address) {
         this.productName = productName;
         this.category = category;
         this.productDetails = productDetails;

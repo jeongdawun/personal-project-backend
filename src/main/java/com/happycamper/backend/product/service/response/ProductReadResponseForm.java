@@ -14,7 +14,7 @@ public class ProductReadResponseForm {
 
     final private Long id;
     final private String productName;
-    final private Integer category;
+    final private String category;
     final private String productDetails;
     final private List<String> productImageNameList  = new ArrayList<>();
     final private List<ProductOptionResponseForm> responseFormList;

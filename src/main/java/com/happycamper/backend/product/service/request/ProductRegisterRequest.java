@@ -11,7 +11,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductRegisterRequest {
     final private String productName;
-    final private Integer category;
+    final private String category;
     final private String productDetails;
     final private Address address;
     final private String mainImageName;

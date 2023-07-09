@@ -5,6 +5,7 @@ import com.happycamper.backend.member.service.request.BusinessMemberRegisterRequ
 import com.happycamper.backend.member.service.request.NormalMemberRegisterRequest;
 import com.happycamper.backend.member.service.request.SellerInfoRegisterRequest;
 import com.happycamper.backend.member.service.request.UserProfileRegisterRequest;
+import com.happycamper.backend.member.service.response.AuthResponse;
 import com.happycamper.backend.member.service.response.SellerInfoResponse;
 import com.happycamper.backend.member.service.response.UserProfileResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,7 +22,7 @@ public interface MemberService {
     Boolean addProfile(UserProfileRegisterRequest request);
     Boolean addSellerInfo(SellerInfoRegisterRequest request);
     void login(MemberLoginRequestForm requestForm, HttpServletResponse response);
-    String authorize(AuthRequestForm requestForm);
+    AuthResponse authorize(AuthRequestForm requestForm);
     UserProfileResponse authorizeForUserProfile(AuthRequestForm requestForm);
     SellerInfoResponse authorizeForSellerInfo(AuthRequestForm requestForm);
     void logout(AuthRequestForm requestForm);

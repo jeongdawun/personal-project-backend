@@ -2,6 +2,7 @@ package com.happycamper.backend.product.controller;
 
 import com.happycamper.backend.member.controller.form.AuthRequestForm;
 import com.happycamper.backend.member.service.MemberService;
+import com.happycamper.backend.member.service.response.AuthResponse;
 import com.happycamper.backend.product.controller.form.CheckProductNameDuplicateRequestForm;
 import com.happycamper.backend.product.controller.form.ProductRegisterRequestForm;
 import com.happycamper.backend.product.service.ProductService;
@@ -34,7 +35,8 @@ public class ProductController {
 
         String accessToken = requestForm.getAccessToken();
         AuthRequestForm authRequestForm = new AuthRequestForm(accessToken);
-        String email = memberService.authorize(authRequestForm);
+        AuthResponse response = memberService.authorize(authRequestForm);
+        String email = response.getEmail();
         return productService.register(email, requestForm.toProductRegisterRequest(), requestForm.toProductOptionRegisterRequest());
     }
 

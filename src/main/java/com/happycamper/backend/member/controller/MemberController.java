@@ -5,6 +5,7 @@ import com.happycamper.backend.member.service.JwtTokenService;
 import com.happycamper.backend.member.service.MemberService;
 import com.happycamper.backend.member.service.request.SellerInfoRegisterRequest;
 import com.happycamper.backend.member.service.request.UserProfileRegisterRequest;
+import com.happycamper.backend.member.service.response.AuthResponse;
 import com.happycamper.backend.member.service.response.SellerInfoResponse;
 import com.happycamper.backend.member.service.response.UserProfileResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -69,7 +70,7 @@ public class MemberController {
     }
 
     @PostMapping("/auth")
-    public String authorize(@RequestBody AuthRequestForm requestForm) {
+    public AuthResponse authorize(@RequestBody AuthRequestForm requestForm) {
         return memberService.authorize(requestForm);
     }
 

@@ -13,6 +13,7 @@ import com.happycamper.backend.member.service.request.BusinessMemberRegisterRequ
 import com.happycamper.backend.member.service.request.NormalMemberRegisterRequest;
 import com.happycamper.backend.member.service.request.SellerInfoRegisterRequest;
 import com.happycamper.backend.member.service.request.UserProfileRegisterRequest;
+import com.happycamper.backend.member.service.response.AuthResponse;
 import com.happycamper.backend.member.service.response.SellerInfoResponse;
 import com.happycamper.backend.member.service.response.UserProfileResponse;
 import io.jsonwebtoken.Claims;
@@ -207,13 +208,26 @@ public class MemberServiceImpl implements MemberService{
 
     // 사용자 인증
     @Override
-    public String authorize(AuthRequestForm requestForm) {
+    public AuthResponse authorize(AuthRequestForm requestForm) {
         System.out.println("검증할 토큰: " + requestForm.getAuthorizationHeader());
 
         String token = requestForm.getAuthorizationHeader();
         Claims claims = jwtTokenService.parseJwtToken(token);
         System.out.println("Claims: " + claims);
-        return claims.getSubject();
+
+        String email = claims.getSubject();
+
+        Optional<Member> maybeMember = memberRepository.findByEmail(email);
+        if(maybeMember.isPresent()) {
+
+            Optional<MemberRole> maybeMemberRole = memberRoleRepository.findByMember(maybeMember.get());
+
+            if(maybeMember.isPresent()) {
+                RoleType roleType = maybeMemberRole.get().getRole().getRoleType();
+                return new AuthResponse(email, roleType);
+            }
+        }
+        return null;
     }
 
     @Override

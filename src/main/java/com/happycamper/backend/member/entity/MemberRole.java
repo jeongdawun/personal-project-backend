@@ -15,7 +15,7 @@ public class MemberRole {
     private Long id;
 
     @Setter
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "role_Id")
     private Role role;
 

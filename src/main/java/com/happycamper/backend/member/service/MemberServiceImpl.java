@@ -17,6 +17,7 @@ import com.happycamper.backend.member.service.response.SellerInfoResponse;
 import com.happycamper.backend.member.service.response.UserProfileResponse;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -186,7 +187,7 @@ public class MemberServiceImpl implements MemberService{
                 final Member member = maybeMember.get();
 
                 String accessToken = jwtTokenService.generateAccessToken(requestForm.getEmail());
-                String refreshToken = jwtTokenService.generateRefreshToken();
+                String refreshToken = jwtTokenService.generateRefreshToken(requestForm.getEmail());
                 redisService.setKeyAndValue(refreshToken, member.getId());
 
                 System.out.println("accessToken: " + accessToken);
@@ -297,5 +298,28 @@ public class MemberServiceImpl implements MemberService{
         Claims claims = jwtTokenService.parseJwtToken(token);
 
         redisService.deleteByKey(token);
+    }
+
+    @Override
+    public void createAccessTokenByRefreshToken(HttpServletRequest request, HttpServletResponse response) {
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("RefreshToken")) {
+                    String refreshToken = cookie.getValue();
+
+                    Claims claims = jwtTokenService.parseJwtToken(refreshToken);
+                    String email = claims.getSubject();
+
+                    String accessToken = jwtTokenService.generateAccessToken(email);
+
+                    String token = "Bearer " + accessToken;
+                    System.out.println("accessToken: " + accessToken);
+
+                    response.setHeader("Authorization", token);
+                }
+            }
+        }
     }
 }

@@ -1,17 +1,14 @@
 package com.happycamper.backend.member.service;
 
 import com.happycamper.backend.member.controller.form.*;
-import com.happycamper.backend.member.entity.sellerInfo.SellerInfo;
-import com.happycamper.backend.member.entity.userProfile.UserProfile;
 import com.happycamper.backend.member.service.request.BusinessMemberRegisterRequest;
 import com.happycamper.backend.member.service.request.NormalMemberRegisterRequest;
 import com.happycamper.backend.member.service.request.SellerInfoRegisterRequest;
 import com.happycamper.backend.member.service.request.UserProfileRegisterRequest;
 import com.happycamper.backend.member.service.response.SellerInfoResponse;
 import com.happycamper.backend.member.service.response.UserProfileResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
-import java.util.List;
 
 public interface MemberService {
 
@@ -28,4 +25,5 @@ public interface MemberService {
     UserProfileResponse authorizeForUserProfile(AuthRequestForm requestForm);
     SellerInfoResponse authorizeForSellerInfo(AuthRequestForm requestForm);
     void logout(AuthRequestForm requestForm);
+    void createAccessTokenByRefreshToken(HttpServletRequest request, HttpServletResponse response);
 }

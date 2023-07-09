@@ -1,9 +1,8 @@
 package com.happycamper.backend.member.service;
 
+import com.happycamper.backend.exception.Exceptions;
 import com.happycamper.backend.member.entity.Role;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,11 +35,12 @@ public class JwtTokenService {
         return token;
     }
 
-    public String generateRefreshToken() {
+    public String generateRefreshToken(String email) {
 
         String token = Jwts.builder()
                 .setHeaderParam("alg", "HS256")
                 .setHeaderParam("typ", "JWT")
+                .setSubject(email)
                 .signWith(SignatureAlgorithm.HS256, finalSecretKey)
                 .setExpiration(new Date(System.currentTimeMillis() + 366 * 60 * 60 * 1000))
                 .compact();
@@ -48,9 +48,17 @@ public class JwtTokenService {
     }
 
     public Claims parseJwtToken(String token) {
-        return Jwts.parser()
-                .setSigningKey(finalSecretKey)
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts.parser()
+                    .setSigningKey(finalSecretKey)
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (ExpiredJwtException e) {
+            throw new Exceptions("만료 토큰", e);
+        } catch (MalformedJwtException e) {
+            throw new Exceptions("형식 확인 필요", e);
+        } catch (SignatureException e) {
+            throw new Exceptions("서명 확인 필요", e);
+        }
     }
 }

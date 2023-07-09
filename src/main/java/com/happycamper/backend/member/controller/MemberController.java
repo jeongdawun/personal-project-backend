@@ -1,11 +1,13 @@
 package com.happycamper.backend.member.controller;
 
 import com.happycamper.backend.member.controller.form.*;
+import com.happycamper.backend.member.service.JwtTokenService;
 import com.happycamper.backend.member.service.MemberService;
 import com.happycamper.backend.member.service.request.SellerInfoRegisterRequest;
 import com.happycamper.backend.member.service.request.UserProfileRegisterRequest;
 import com.happycamper.backend.member.service.response.SellerInfoResponse;
 import com.happycamper.backend.member.service.response.UserProfileResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/member")
 public class MemberController {
     final private MemberService memberService;
+    final JwtTokenService jwtTokenService;
 
     @PostMapping("/check-email-duplicate")
     public Boolean checkEmailDuplicate(@RequestBody CheckEmailDuplicateRequestForm requestForm) {
@@ -95,5 +98,10 @@ public class MemberController {
     @PostMapping("/logout")
     public void logout(@RequestBody AuthRequestForm requestForm) {
         memberService.logout(requestForm);
+    }
+
+    @PostMapping("/auth-refreshToken")
+    public void createAccessToken(HttpServletRequest request, HttpServletResponse response) {
+        memberService.createAccessTokenByRefreshToken(request, response);
     }
 }

@@ -8,16 +8,13 @@ import com.happycamper.backend.product.repository.*;
 import com.happycamper.backend.product.service.request.ProductOptionRegisterRequest;
 import com.happycamper.backend.product.service.request.ProductRegisterRequest;
 import com.happycamper.backend.product.service.response.ProductListResponseForm;
-import com.happycamper.backend.product.service.response.ProductOptionResponseForm;
 import com.happycamper.backend.product.service.response.ProductReadResponseForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -149,7 +146,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @Transactional
     public ProductReadResponseForm read(Long id) {
         final Optional<Product> maybeProduct = productRepository.findById(id);
 
@@ -163,38 +159,9 @@ public class ProductServiceImpl implements ProductService {
         // 2. 상품 Id로 상품 옵션 리스트 찾기
         List<ProductOption> productOptionList = productOptionRepository.findAllByProductId(product.getId());
 
-        List<Options> optionsList = new ArrayList<>();
-        List<List<Options>> optionsList1 = new ArrayList<>();
-
-        for(ProductOption productOption : productOptionList) {
-            optionsList = optionsRepository.findAllByProductOptionId(productOption.getId());
-            optionsList1.add(optionsList);
-        }
-
-        // 3. 찾은 상품 옵션으로 옵션 개수만큼 반복하며 ProductOptionResponseForm 생성하기
-        List<ProductOptionResponseForm> responseFormList = new ArrayList<>();
-        for(List<Options> optionsList2 : optionsList1) {
-
-            for(Options options : optionsList2) {
-                List<Date> dateList = new ArrayList<>();
-                List<Integer> stockList = new ArrayList<>();
-                dateList.add(options.getDate());
-                stockList.add(options.getStock());
-
-                ProductOptionResponseForm responseForm = new ProductOptionResponseForm(
-                        options.getId(),
-                        dateList,
-                        stockList,
-                        options.getProductOption().getOptionName(),
-                        options.getProductOption().getOptionPrice()
-                );
-                responseFormList.add(responseForm);
-            }
-        }
-
-        // 4. 상품 이미지 모두 찾아서 리스트에 담기
+        // 3. 상품 이미지 모두 찾아서 리스트에 담기
         List<ProductImage> productImagesList = productImageRepository.findAllByProductId(product.getId());
 
-        return new ProductReadResponseForm(product, responseFormList,  productImagesList);
+        return new ProductReadResponseForm(product, productOptionList,  productImagesList);
     }
 }

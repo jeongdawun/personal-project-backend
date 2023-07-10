@@ -8,6 +8,8 @@ import com.happycamper.backend.product.controller.form.ProductRegisterRequestFor
 import com.happycamper.backend.product.service.ProductService;
 import com.happycamper.backend.product.service.response.ProductListResponseForm;
 import com.happycamper.backend.product.service.response.ProductReadResponseForm;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -31,12 +33,10 @@ public class ProductController {
     }
 
     @PostMapping("/register")
-    public Boolean registerProduct(@RequestBody ProductRegisterRequestForm requestForm) {
+    public Boolean registerProduct(HttpServletRequest request, HttpServletResponse response, @RequestBody ProductRegisterRequestForm requestForm) {
 
-        String accessToken = requestForm.getAccessToken();
-        AuthRequestForm authRequestForm = new AuthRequestForm(accessToken);
-        AuthResponse response = memberService.authorize(authRequestForm);
-        String email = response.getEmail();
+        AuthResponse authResponse = memberService.authorize(request, response);
+        String email = authResponse.getEmail();
         return productService.register(email, requestForm.toProductRegisterRequest(), requestForm.toProductOptionRegisterRequest());
     }
 

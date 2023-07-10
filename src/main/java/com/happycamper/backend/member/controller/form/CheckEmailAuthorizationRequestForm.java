@@ -1,7 +1,6 @@
 package com.happycamper.backend.member.controller.form;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 @Getter

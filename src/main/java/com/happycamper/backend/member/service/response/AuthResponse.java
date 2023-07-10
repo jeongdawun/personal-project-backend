@@ -1,7 +1,5 @@
 package com.happycamper.backend.member.service.response;
 
-import com.happycamper.backend.member.entity.Role;
-import com.happycamper.backend.member.entity.RoleType;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -9,5 +7,5 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthResponse {
     final private String email;
-    final private RoleType roleType;
+    final private String role;
 }

@@ -1,5 +1,6 @@
 package com.happycamper.backend.member.service;
 
+import com.happycamper.backend.member.authorization.JwtUtil;
 import com.happycamper.backend.member.controller.form.*;
 import com.happycamper.backend.member.entity.*;
 import com.happycamper.backend.member.entity.sellerInfo.SellerInfo;
@@ -16,14 +17,18 @@ import com.happycamper.backend.member.service.request.UserProfileRegisterRequest
 import com.happycamper.backend.member.service.response.AuthResponse;
 import com.happycamper.backend.member.service.response.SellerInfoResponse;
 import com.happycamper.backend.member.service.response.UserProfileResponse;
-import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.Optional;
 
 @Slf4j
@@ -36,9 +41,38 @@ public class MemberServiceImpl implements MemberService{
     final private UserProfileRepository userProfileRepository;
     final private SellerInfoRepository sellerInfoRepository;
     final private RoleRepository roleRepository;
-    final EmailService emailService;
-    final JwtTokenService jwtTokenService;
-    final RedisService redisService;
+    final private EmailService emailService;
+    final private JwtUtil jwtUtil;
+    final private RedisService redisService;
+
+    @Value("${jwt.password}")
+    private String secretKey;
+
+    // 이메일로 회원 찾기
+    @Override
+    public Member findLoginMemberByEmail(String email) {
+        Optional<Member> maybeMember = memberRepository.findByEmail(email);
+        if(maybeMember.isEmpty()) {
+            return null;
+        }
+        return maybeMember.get();
+    }
+
+    // 이메일로 회원 role 찾기
+    @Override
+    public Role findLoginMemberRoleByEmail(String email) {
+        Optional<Member> maybeMember = memberRepository.findByEmail(email);
+        if(maybeMember.isEmpty()) {
+            return null;
+        }
+        Member member = maybeMember.get();
+
+        Optional<MemberRole> maybeMemberRole = memberRoleRepository.findByMember(member);
+        if(maybeMemberRole.isPresent()) {
+            return maybeMemberRole.get().getRole();
+        }
+        return null;
+    }
 
     // 일반 회원의 회원가입
     @Override
@@ -187,29 +221,25 @@ public class MemberServiceImpl implements MemberService{
 
                 final Member member = maybeMember.get();
 
-                String accessToken = jwtTokenService.generateAccessToken(requestForm.getEmail());
-                String refreshToken = jwtTokenService.generateRefreshToken(requestForm.getEmail());
+                String accessToken = jwtUtil.generateToken(requestForm.getEmail(), secretKey, 6 * 60 * 60 * 1000);
+                String refreshToken = jwtUtil.generateToken(requestForm.getEmail(), secretKey, 2 * 7 * 24 * 60 * 60 * 1000);
                 redisService.setKeyAndValue(refreshToken, member.getId());
 
                 System.out.println("AccessToken: " + accessToken);
                 System.out.println("RefreshToken: " + refreshToken);
 
-                Cookie assessCookie = new Cookie("AccessToken", accessToken);
-                assessCookie.setPath("/");
-                assessCookie.setMaxAge(60); // 1분 유지
-                response.addCookie(assessCookie);
+                Cookie assessCookie = jwtUtil.generateCookie("AccessToken", accessToken, 60 * 60 * 6, false);
+                Cookie refreshCookie = jwtUtil.generateCookie("RefreshToken", refreshToken, 60 * 60 * 24 * 14, true);
 
-                Cookie refreshCookie = new Cookie("RefreshToken", refreshToken);
-                refreshCookie.setPath("/");
-                refreshCookie.setMaxAge(60 * 60 * 24 * 14);
-                refreshCookie.setHttpOnly(true);
+                response.addCookie(assessCookie);
                 response.addCookie(refreshCookie);
             }
         }
     }
 
+    // 토큰 검증 후 권한 확인
     @Override
-    public AuthResponse authorize(HttpServletRequest request, HttpServletResponse response) {
+    public AuthResponse authorize(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
 
         if (cookies != null) {
@@ -217,20 +247,100 @@ public class MemberServiceImpl implements MemberService{
                 if (cookie.getName().equals("AccessToken")) {
 
                     String accessToken = cookie.getValue();
-                    System.out.println("클라이언트에서 가져온 accessToken: " + accessToken);
-                    Claims claims = jwtTokenService.parseJwtToken(accessToken);
+                    String email = jwtUtil.getEmail(accessToken, secretKey);
 
-                    if(claims != null) {
-                        String email = claims.getSubject();
+                    Optional<Member> maybeMember = memberRepository.findByEmail(email);
+                    if(maybeMember.isPresent()) {
+                        Optional<MemberRole> maybeMemberRole = memberRoleRepository.findByMember(maybeMember.get());
+                        if(maybeMemberRole.isPresent()) {
+                            return new AuthResponse(email, maybeMemberRole.get().getRole().getRoleType().toString());
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
 
-                        Optional<Member> maybeMember = memberRepository.findByEmail(email);
-                        if (maybeMember.isPresent()) {
+    // 일반 회원 프로필 가져오기
+    @Override
+    public UserProfileResponse getUserProfile(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
 
-                            Optional<MemberRole> maybeMemberRole = memberRoleRepository.findByMember(maybeMember.get());
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("AccessToken")) {
 
-                            if (maybeMember.isPresent()) {
-                                RoleType roleType = maybeMemberRole.get().getRole().getRoleType();
-                                return new AuthResponse(email, roleType);
+                    String accessToken = cookie.getValue();
+                    String email = jwtUtil.getEmail(accessToken, secretKey);
+
+                    Optional<Member> maybeMember = memberRepository.findByEmail(email);
+                    if(maybeMember.isPresent()) {
+
+                        Optional<UserProfile> maybeUserProfile = userProfileRepository.findUserProfileByMember(maybeMember.get());
+                        if(maybeUserProfile.isPresent()) {
+
+                        UserProfile userProfile = maybeUserProfile.get();
+                        UserProfileResponse response =
+                                new UserProfileResponse(
+                                        email,
+                                        userProfile.getName(),
+                                        userProfile.getContactNumber(),
+                                        userProfile.getNickName(),
+                                        userProfile.getBirthday());
+
+                                return response;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    // 판매자 회원 고객센터 정보 가져오기
+    @Override
+    public SellerInfoResponse getSellerInfo(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("AccessToken")) {
+
+                    String accessToken = cookie.getValue();
+                    String email = jwtUtil.getEmail(accessToken, secretKey);
+
+                    Optional<Member> maybeMember = memberRepository.findByEmail(email);
+                    if(maybeMember.isPresent()) {
+
+                        Optional<SellerInfo> maybeSellerInfo = sellerInfoRepository.findSellerInfoByMember(maybeMember.get());
+                        Optional<MemberRole> maybeMemberRole = memberRoleRepository.findByMember(maybeMember.get());
+
+                        if(maybeSellerInfo.isPresent() && maybeMemberRole.isPresent()) {
+                            SellerInfo sellerInfo = maybeSellerInfo.get();
+                            SellerInfoResponse response =
+                                    new SellerInfoResponse(
+                                            email,
+                                            maybeMemberRole.get().getBusinessNumber(),
+                                            maybeMemberRole.get().getBusinessName(),
+                                            sellerInfo.getAddress().getCity(),
+                                            sellerInfo.getAddress().getStreet(),
+                                            sellerInfo.getAddress().getAddressDetail(),
+                                            sellerInfo.getAddress().getZipcode(),
+                                            sellerInfo.getContactNumber(),
+                                            sellerInfo.getBank(),
+                                            sellerInfo.getAccountNumber());
+
+                            return response;
+                        }
+                        if(maybeSellerInfo.isEmpty()) {
+                            if(maybeMemberRole.isPresent()) {
+                                SellerInfoResponse response =
+                                        new SellerInfoResponse(
+                                                email,
+                                                maybeMemberRole.get().getBusinessNumber(),
+                                                maybeMemberRole.get().getBusinessName());
+                                return response;
                             }
                         }
                     }
@@ -240,80 +350,7 @@ public class MemberServiceImpl implements MemberService{
         return null;
     }
 
-    @Override
-    public UserProfileResponse authorizeForUserProfile(AuthRequestForm requestForm) {
-        System.out.println("검증할 토큰: " + requestForm.getAuthorizationHeader());
-
-        String token = requestForm.getAuthorizationHeader();
-        Claims claims = jwtTokenService.parseJwtToken(token);
-        String email = claims.getSubject();
-
-        Optional<Member> maybeMember = memberRepository.findByEmail(email);
-        if(maybeMember.isPresent()) {
-            Member member = maybeMember.get();
-            Optional<UserProfile> maybeUserProfile = userProfileRepository.findUserProfileByMember(member);
-            if(maybeUserProfile.isPresent()) {
-                UserProfile userProfile = maybeUserProfile.get();
-                UserProfileResponse response =
-                        new UserProfileResponse(
-                                email,
-                                userProfile.getName(),
-                                userProfile.getContactNumber(),
-                                userProfile.getNickName(),
-                                userProfile.getBirthday());
-
-                return response;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public SellerInfoResponse authorizeForSellerInfo(AuthRequestForm requestForm) {
-        System.out.println("검증할 토큰: " + requestForm.getAuthorizationHeader());
-
-        String token = requestForm.getAuthorizationHeader();
-        Claims claims = jwtTokenService.parseJwtToken(token);
-        String email = claims.getSubject();
-
-        Optional<Member> maybeMember = memberRepository.findByEmail(email);
-        if(maybeMember.isPresent()) {
-            Member member = maybeMember.get();
-            Optional<SellerInfo> maybeSellerInfo = sellerInfoRepository.findSellerInfoByMember(member);
-            Optional<MemberRole> maybeMemberRole = memberRoleRepository.findByMember(member);
-
-            if(maybeSellerInfo.isPresent()) {
-                SellerInfo sellerInfo = maybeSellerInfo.get();
-                SellerInfoResponse response =
-                        new SellerInfoResponse(
-                                email,
-                                maybeMemberRole.get().getBusinessNumber(),
-                                maybeMemberRole.get().getBusinessName(),
-                                sellerInfo.getAddress().getCity(),
-                                sellerInfo.getAddress().getStreet(),
-                                sellerInfo.getAddress().getAddressDetail(),
-                                sellerInfo.getAddress().getZipcode(),
-                                sellerInfo.getContactNumber(),
-                                sellerInfo.getBank(),
-                                sellerInfo.getAccountNumber());
-
-                return response;
-            }
-
-            if(maybeSellerInfo.isEmpty()) {
-                if(maybeMemberRole.isPresent()) {
-                    SellerInfoResponse response =
-                            new SellerInfoResponse(
-                                    email,
-                                    maybeMemberRole.get().getBusinessNumber(),
-                                    maybeMemberRole.get().getBusinessName());
-                    return response;
-                }
-            }
-        }
-        return null;
-    }
-
+    // 로그아웃
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response) {
         Cookie[] cookies = request.getCookies();
@@ -325,47 +362,18 @@ public class MemberServiceImpl implements MemberService{
                     String accessToken = cookie.getValue();
                     System.out.println("클라이언트에서 가져온 accessToken: " + accessToken);
 
-                    Cookie assessCookie = new Cookie("AccessToken", null);
-                    assessCookie.setPath("/");
-                    assessCookie.setMaxAge(0);
+                    Cookie assessCookie = jwtUtil.generateCookie("AccessToken", null, 0, false);
+
                     response.addCookie(assessCookie);
                 }
                 if(cookie.getName().equals("RefreshToken")) {
                     String refreshToken = cookie.getValue();
                     System.out.println("클라이언트에서 가져온 refreshToken: " + refreshToken);
 
-                    Cookie refreshCookie = new Cookie("RefreshToken", null);
-                    refreshCookie.setPath("/");
-                    refreshCookie.setMaxAge(0);
+                    Cookie refreshCookie = jwtUtil.generateCookie("RefreshToken", null, 0, true);
                     response.addCookie(refreshCookie);
 
                     redisService.deleteByKey(refreshToken);
-                }
-            }
-        }
-    }
-
-    @Override
-    public void createAccessTokenByRefreshToken(HttpServletRequest request, HttpServletResponse response) {
-        Cookie[] cookies = request.getCookies();
-
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("RefreshToken")) {
-                    String refreshToken = cookie.getValue();
-                    System.out.println("refreshToken by cookie: " + refreshToken);
-
-                    Claims claims = jwtTokenService.parseJwtToken(refreshToken);
-                    if(claims != null) {
-                        String email = claims.getSubject();
-
-                        String accessToken = jwtTokenService.generateAccessToken(email);
-
-                        Cookie assessCookie = new Cookie("AccessToken", accessToken);
-                        assessCookie.setPath("/");
-                        assessCookie.setMaxAge(60);
-                        response.addCookie(assessCookie);
-                    }
                 }
             }
         }

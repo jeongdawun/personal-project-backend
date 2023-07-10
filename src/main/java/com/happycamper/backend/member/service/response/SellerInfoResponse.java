@@ -2,7 +2,6 @@ package com.happycamper.backend.member.service.response;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 @Getter
 @RequiredArgsConstructor

@@ -191,44 +191,50 @@ public class MemberServiceImpl implements MemberService{
                 String refreshToken = jwtTokenService.generateRefreshToken(requestForm.getEmail());
                 redisService.setKeyAndValue(refreshToken, member.getId());
 
-                System.out.println("accessToken: " + accessToken);
-                System.out.println("refreshToken: " + refreshToken);
+                System.out.println("AccessToken: " + accessToken);
+                System.out.println("RefreshToken: " + refreshToken);
 
-                String token = "Bearer " + accessToken;
+                Cookie assessCookie = new Cookie("AccessToken", accessToken);
+                assessCookie.setPath("/");
+                assessCookie.setMaxAge(60); // 1분 유지
+                response.addCookie(assessCookie);
 
-                response.setHeader("Authorization", token);
-
-                Cookie cookie = new Cookie("RefreshToken", refreshToken);
-                cookie.setMaxAge(60 * 60 * 24 * 14);
-                cookie.setHttpOnly(true);
-                response.addCookie(cookie);
+                Cookie refreshCookie = new Cookie("RefreshToken", refreshToken);
+                refreshCookie.setPath("/");
+                refreshCookie.setMaxAge(60 * 60 * 24 * 14);
+                refreshCookie.setHttpOnly(true);
+                response.addCookie(refreshCookie);
             }
         }
     }
 
-    // 사용자 인증
     @Override
-    public AuthResponse authorize(AuthRequestForm requestForm) {
-        System.out.println("검증할 토큰: " + requestForm.getAuthorizationHeader());
+    public AuthResponse authorize(HttpServletRequest request, HttpServletResponse response) {
+        Cookie[] cookies = request.getCookies();
 
-        String token = requestForm.getAuthorizationHeader();
-        Claims claims = jwtTokenService.parseJwtToken(token);
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("AccessToken")) {
 
-        if(claims == null) {
-            return null;
-        }
-        System.out.println("Claims: " + claims);
+                    String accessToken = cookie.getValue();
+                    System.out.println("클라이언트에서 가져온 accessToken: " + accessToken);
+                    Claims claims = jwtTokenService.parseJwtToken(accessToken);
 
-        String email = claims.getSubject();
+                    if(claims != null) {
+                        String email = claims.getSubject();
 
-        Optional<Member> maybeMember = memberRepository.findByEmail(email);
-        if(maybeMember.isPresent()) {
+                        Optional<Member> maybeMember = memberRepository.findByEmail(email);
+                        if (maybeMember.isPresent()) {
 
-            Optional<MemberRole> maybeMemberRole = memberRoleRepository.findByMember(maybeMember.get());
+                            Optional<MemberRole> maybeMemberRole = memberRoleRepository.findByMember(maybeMember.get());
 
-            if(maybeMember.isPresent()) {
-                RoleType roleType = maybeMemberRole.get().getRole().getRoleType();
-                return new AuthResponse(email, roleType);
+                            if (maybeMember.isPresent()) {
+                                RoleType roleType = maybeMemberRole.get().getRole().getRoleType();
+                                return new AuthResponse(email, roleType);
+                            }
+                        }
+                    }
+                }
             }
         }
         return null;
@@ -309,13 +315,34 @@ public class MemberServiceImpl implements MemberService{
     }
 
     @Override
-    public void logout(AuthRequestForm requestForm) {
-        System.out.println("검증할 토큰: " + requestForm.getAuthorizationHeader());
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        Cookie[] cookies = request.getCookies();
 
-        String token = requestForm.getAuthorizationHeader();
-        Claims claims = jwtTokenService.parseJwtToken(token);
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("AccessToken")) {
 
-        redisService.deleteByKey(token);
+                    String accessToken = cookie.getValue();
+                    System.out.println("클라이언트에서 가져온 accessToken: " + accessToken);
+
+                    Cookie assessCookie = new Cookie("AccessToken", null);
+                    assessCookie.setPath("/");
+                    assessCookie.setMaxAge(0);
+                    response.addCookie(assessCookie);
+                }
+                if(cookie.getName().equals("RefreshToken")) {
+                    String refreshToken = cookie.getValue();
+                    System.out.println("클라이언트에서 가져온 refreshToken: " + refreshToken);
+
+                    Cookie refreshCookie = new Cookie("RefreshToken", null);
+                    refreshCookie.setPath("/");
+                    refreshCookie.setMaxAge(0);
+                    response.addCookie(refreshCookie);
+
+                    redisService.deleteByKey(refreshToken);
+                }
+            }
+        }
     }
 
     @Override
@@ -329,14 +356,16 @@ public class MemberServiceImpl implements MemberService{
                     System.out.println("refreshToken by cookie: " + refreshToken);
 
                     Claims claims = jwtTokenService.parseJwtToken(refreshToken);
-                    String email = claims.getSubject();
+                    if(claims != null) {
+                        String email = claims.getSubject();
 
-                    String accessToken = jwtTokenService.generateAccessToken(email);
+                        String accessToken = jwtTokenService.generateAccessToken(email);
 
-                    String token = "Bearer " + accessToken;
-                    System.out.println("accessToken: " + accessToken);
-
-                    response.setHeader("Authorization", token);
+                        Cookie assessCookie = new Cookie("AccessToken", accessToken);
+                        assessCookie.setPath("/");
+                        assessCookie.setMaxAge(60);
+                        response.addCookie(assessCookie);
+                    }
                 }
             }
         }

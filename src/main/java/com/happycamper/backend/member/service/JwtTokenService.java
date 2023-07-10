@@ -30,7 +30,7 @@ public class JwtTokenService {
                 .setHeaderParam("typ", "JWT")
                 .setSubject(email)
                 .signWith(SignatureAlgorithm.HS256, finalSecretKey)
-                .setExpiration(new Date(System.currentTimeMillis() + 1 * 60 * 60 * 1000))
+                .setExpiration(new Date(System.currentTimeMillis() + 60 * 1000)) // 1분 유지
                 .compact();
         return token;
     }

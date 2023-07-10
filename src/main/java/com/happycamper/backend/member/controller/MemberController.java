@@ -70,8 +70,8 @@ public class MemberController {
     }
 
     @PostMapping("/auth")
-    public AuthResponse authorize(@RequestBody AuthRequestForm requestForm) {
-        return memberService.authorize(requestForm);
+    public AuthResponse authorize(HttpServletRequest request, HttpServletResponse response) {
+        return memberService.authorize(request, response);
     }
 
     @PostMapping("/auth-userProfile")
@@ -97,8 +97,8 @@ public class MemberController {
     }
 
     @PostMapping("/logout")
-    public void logout(@RequestBody AuthRequestForm requestForm) {
-        memberService.logout(requestForm);
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        memberService.logout(request, response);
     }
 
     @PostMapping("/auth-refreshToken")

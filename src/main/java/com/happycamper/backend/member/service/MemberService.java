@@ -22,9 +22,9 @@ public interface MemberService {
     Boolean addProfile(UserProfileRegisterRequest request);
     Boolean addSellerInfo(SellerInfoRegisterRequest request);
     void login(MemberLoginRequestForm requestForm, HttpServletResponse response);
-    AuthResponse authorize(AuthRequestForm requestForm);
+    AuthResponse authorize(HttpServletRequest request, HttpServletResponse response);
     UserProfileResponse authorizeForUserProfile(AuthRequestForm requestForm);
     SellerInfoResponse authorizeForSellerInfo(AuthRequestForm requestForm);
-    void logout(AuthRequestForm requestForm);
+    void logout(HttpServletRequest request, HttpServletResponse response);
     void createAccessTokenByRefreshToken(HttpServletRequest request, HttpServletResponse response);
 }

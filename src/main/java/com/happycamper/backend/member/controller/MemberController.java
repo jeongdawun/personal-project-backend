@@ -52,14 +52,14 @@ public class MemberController {
 
     @PostMapping("/signup-normal")
     public Boolean signupNormal(@RequestBody NormalMemberRegisterForm requestForm) {
-        Boolean isCompleteSignupMember = memberService.normalMemberRegister(requestForm.toNormalMemberRegisterRequest());
+        Boolean isCompleteSignupMember = memberService.normalMemberRegister(requestForm);
 
         return isCompleteSignupMember;
     }
 
     @PostMapping("/signup-business")
     public Boolean signupBusiness(@RequestBody BusinessMemberRegisterForm requestForm) {
-        Boolean isCompleteSignupMember = memberService.businessMemberRegister(requestForm.toBusinessMemberRegisterRequest());
+        Boolean isCompleteSignupMember = memberService.businessMemberRegister(requestForm);
 
         return isCompleteSignupMember;
     }

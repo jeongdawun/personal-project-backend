@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -44,6 +45,7 @@ public class MemberServiceImpl implements MemberService{
     final private EmailService emailService;
     final private JwtUtil jwtUtil;
     final private RedisService redisService;
+    final private PasswordEncoder passwordEncoder;
 
     @Value("${jwt.password}")
     private String secretKey;
@@ -76,9 +78,15 @@ public class MemberServiceImpl implements MemberService{
 
     // 일반 회원의 회원가입
     @Override
-    public Boolean normalMemberRegister(NormalMemberRegisterRequest request) {
+    public Boolean normalMemberRegister(NormalMemberRegisterForm requestForm) {
+        String email = requestForm.getEmail();
+        String password = passwordEncoder.encode(requestForm.getPassword());
+
+        final NormalMemberRegisterRequest request = requestForm.toNormalMemberRegisterRequest();
+        final Member member = request.toMember(email, password);
+
         // 계정 생성
-        final Member member = memberRepository.save(request.toMember());
+        memberRepository.save(member);
 
         // 회원 타입 부여
         final Role role = roleRepository.findByRoleType(request.getRoleType()).get();
@@ -126,13 +134,19 @@ public class MemberServiceImpl implements MemberService{
 
     // 사업자 회원의 회원가입
     @Override
-    public Boolean businessMemberRegister(BusinessMemberRegisterRequest request) {
+    public Boolean businessMemberRegister(BusinessMemberRegisterForm requestForm) {
+
+        String email = requestForm.getEmail();
+        String password = passwordEncoder.encode(requestForm.getPassword());
+
+        final BusinessMemberRegisterRequest request = requestForm.toBusinessMemberRegisterRequest();
+        final Member member = request.toMember(email, password);
+
+        // 계정 생성
+        memberRepository.save(member);
 
         final Long businessNumber = request.getBusinessNumber();
         final String businessName = request.getBusinessName();
-
-        // 계정 생성
-        final Member member = memberRepository.save(request.toMember());
 
         // 회원 타입 부여
         final Role role = roleRepository.findByRoleType(request.getRoleType()).get();

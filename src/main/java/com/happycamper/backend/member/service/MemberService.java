@@ -17,11 +17,11 @@ public interface MemberService {
 
     Member findLoginMemberByEmail(String email);
     Role findLoginMemberRoleByEmail(String email);
-    Boolean normalMemberRegister(NormalMemberRegisterRequest request);
+    Boolean normalMemberRegister(NormalMemberRegisterForm requestForm);
     Boolean checkEmailDuplicate(CheckEmailDuplicateRequestForm requestForm);
     Boolean checkBusinessNumberDuplicate(CheckBusinessNumberDuplicateRequestForm requestForm);
     Boolean checkNickNameDuplicate(CheckNickNameDuplicateRequestForm requestForm);
-    Boolean businessMemberRegister(BusinessMemberRegisterRequest toBusinessMemberRegisterRequest);
+    Boolean businessMemberRegister(BusinessMemberRegisterForm requestForm);
     String checkEmailAuthorize(CheckEmailAuthorizationRequestForm requestForm);
     Boolean addProfile(UserProfileRegisterRequest request);
     Boolean addSellerInfo(SellerInfoRegisterRequest request);

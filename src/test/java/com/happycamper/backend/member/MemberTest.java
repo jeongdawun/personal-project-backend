@@ -4,11 +4,9 @@ import com.happycamper.backend.member.controller.form.*;
 import com.happycamper.backend.member.entity.RoleType;
 import com.happycamper.backend.member.entity.sellerInfo.Address;
 import com.happycamper.backend.member.entity.sellerInfo.SellerInfo;
-import com.happycamper.backend.member.entity.userProfile.UserProfile;
 import com.happycamper.backend.member.service.MemberService;
 import com.happycamper.backend.member.service.request.SellerInfoRegisterRequest;
 import com.happycamper.backend.member.service.request.UserProfileRegisterRequest;
-import com.happycamper.backend.member.service.response.UserProfileResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +31,7 @@ public class MemberTest {
         final RoleType roleType = NORMAL;
 
         NormalMemberRegisterForm requestForm = new NormalMemberRegisterForm(email, password, roleType);
-        Boolean isCompleteSignUpMember = memberService.normalMemberRegister(requestForm.toNormalMemberRegisterRequest());
+        Boolean isCompleteSignUpMember = memberService.normalMemberRegister(requestForm);
 
         assertEquals(isCompleteSignUpMember, true);
     }
@@ -63,7 +61,7 @@ public class MemberTest {
         final String businessName = "다운이네캠핑장";
 
         BusinessMemberRegisterForm requestForm = new BusinessMemberRegisterForm(email, password, roleType, businessNumber, businessName);
-        Boolean isCompleteSignUpNormal = memberService.businessMemberRegister(requestForm.toBusinessMemberRegisterRequest());
+        Boolean isCompleteSignUpNormal = memberService.businessMemberRegister(requestForm);
 
         assertEquals(isCompleteSignUpNormal, true);
     }
@@ -102,6 +100,7 @@ public class MemberTest {
     @DisplayName("판매자 회원의 고객센터 정보 생성")
     void 판매자_회원의_고객센터_정보_생성 () {
         final Long accountId = 2L;
+        final String email = "test@test.com";
         final String city = "서울 강남구";
         final String street = "테헤란로14길 6";
         final String addressDetail = "6층";
@@ -110,14 +109,12 @@ public class MemberTest {
         final String bank = "우리은행";
         final Long accountNumber = 1002123456789L;
 
-        Address address = new Address(city, street, addressDetail, zipcode);
-
         SellerInfoRegisterRequestForm registerRequestForm =
-                new SellerInfoRegisterRequestForm(address, contactNumber, bank, accountNumber);
+                new SellerInfoRegisterRequestForm(email, city, street, addressDetail, zipcode, contactNumber, bank, accountNumber);
         SellerInfoRegisterRequest request = registerRequestForm.toSellerInfoRegisterRequest();
 
-        SellerInfo sellerInfo = memberService.addSellerInfo(accountId, request);
+        Boolean isCompleteAddSellerInfo = memberService.addSellerInfo(request);
 
-        assertEquals(sellerInfo.getAccountNumber(), accountNumber);
+        assertEquals(isCompleteAddSellerInfo, true);
     }
 }

@@ -14,7 +14,7 @@ public class BusinessMemberRegisterRequest {
     final private Long businessNumber;
     final private String businessName;
 
-    public Member toMember () {
+    public Member toMember (String email, String password) {
         return new Member(email, password);
     }
 }

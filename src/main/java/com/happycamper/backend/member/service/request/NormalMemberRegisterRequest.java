@@ -13,7 +13,7 @@ public class NormalMemberRegisterRequest {
     final private String password;
     final private RoleType roleType;
 
-    public Member toMember () {
+    public Member toMember (String email, String password) {
         return new Member(email, password);
     }
 }

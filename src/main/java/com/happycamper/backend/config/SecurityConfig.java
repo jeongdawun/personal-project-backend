@@ -27,7 +27,7 @@ public class SecurityConfig {
     private final JwtUtil jwtUtil;
     private final String[] permitUrl = { "/", "/member/signup-normal", "/member/signup-business", "/member/login",
                             "/member/check-nickName-duplicate", "/member/check-businessNumber-duplicate", "/member/check-email-duplicate",
-                            "/member/check-email-authorize", "/product/list", "/product/**", "/product/check-stock"};
+                            "/member/check-email-authorize", "/product/list", "/product/**", "/product/check-stock", "/product/category/**"};
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {

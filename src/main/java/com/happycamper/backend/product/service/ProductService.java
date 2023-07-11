@@ -17,4 +17,5 @@ public interface ProductService {
     List<ProductListResponseForm> list();
     ProductReadResponseForm read(Long id);
     StockResponseForm checkStock(StockRequestForm requestForm);
+    List<ProductListResponseForm> listByCategory(String category);
 }

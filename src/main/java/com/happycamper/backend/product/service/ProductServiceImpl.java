@@ -130,7 +130,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductListResponseForm> list() {
-
         List<Product> productList = productRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
 
         List<ProductListResponseForm> responseFormList = new ArrayList<>();
@@ -138,6 +137,7 @@ public class ProductServiceImpl implements ProductService {
         for(Product product : productList) {
             ProductOption productOption = productOptionRepository.findMinPriceOptionByProductId(product.getId());
             Optional<ProductMainImage> productMainImage = productMainImageRepository.findById(product.getId());
+
             if(productMainImage.isPresent()) {
                 ProductListResponseForm responseForm = new ProductListResponseForm(
                         product.getId(),
@@ -215,6 +215,29 @@ public class ProductServiceImpl implements ProductService {
         }
         StockResponseForm responseForm = new StockResponseForm(optionNameList, finalStockList);
         return responseForm;
+    }
+
+    @Override
+    public List<ProductListResponseForm> listByCategory(String category) {
+        List<Product> productList = productRepository.findAllByCategory(category);
+
+        List<ProductListResponseForm> responseFormList = new ArrayList<>();
+
+        for(Product product : productList) {
+            ProductOption productOption = productOptionRepository.findMinPriceOptionByProductId(product.getId());
+            Optional<ProductMainImage> productMainImage = productMainImageRepository.findById(product.getId());
+            
+            if(productMainImage.isPresent()) {
+                ProductListResponseForm responseForm = new ProductListResponseForm(
+                        product.getId(),
+                        product.getProductName(),
+                        product.getCategory(),
+                        productMainImage.get().getMainImageName(),
+                        productOption.getOptionPrice());
+                responseFormList.add(responseForm);
+            }
+        }
+        return responseFormList;
     }
 
     // 클라이언트에서 보내주는 날짜를 Date 타입으로 변경

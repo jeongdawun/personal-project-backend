@@ -56,4 +56,10 @@ public class ProductController {
     public StockResponseForm checkStock(@RequestBody StockRequestForm requestForm) {
         return productService.checkStock(requestForm);
     }
+
+    @GetMapping("/category/{category}")
+    public List<ProductListResponseForm> productListByCategory(@PathVariable("category") String category) {
+        List<ProductListResponseForm> productListByCategory = productService.listByCategory(category);
+        return productListByCategory;
+    }
 }

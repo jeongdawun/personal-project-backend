@@ -2,8 +2,6 @@ package com.happycamper.backend.member;
 
 import com.happycamper.backend.member.controller.form.*;
 import com.happycamper.backend.member.entity.RoleType;
-import com.happycamper.backend.member.entity.sellerInfo.Address;
-import com.happycamper.backend.member.entity.sellerInfo.SellerInfo;
 import com.happycamper.backend.member.service.MemberService;
 import com.happycamper.backend.member.service.request.SellerInfoRegisterRequest;
 import com.happycamper.backend.member.service.request.UserProfileRegisterRequest;

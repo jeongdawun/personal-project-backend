@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class ProductListResponseForm {
+    final private Long id;
     final private String productName;
     final private String category;
     final private String mainImageName;

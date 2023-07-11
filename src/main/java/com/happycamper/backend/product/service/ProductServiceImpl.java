@@ -140,6 +140,7 @@ public class ProductServiceImpl implements ProductService {
             Optional<ProductMainImage> productMainImage = productMainImageRepository.findById(product.getId());
             if(productMainImage.isPresent()) {
                 ProductListResponseForm responseForm = new ProductListResponseForm(
+                        product.getId(),
                         product.getProductName(),
                         product.getCategory(),
                         productMainImage.get().getMainImageName(),

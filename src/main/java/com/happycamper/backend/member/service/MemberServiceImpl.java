@@ -23,13 +23,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
 import java.util.Optional;
 
 @Slf4j
@@ -227,11 +223,11 @@ public class MemberServiceImpl implements MemberService{
 
     // 회원의 로그인
     @Override
-    public void login(MemberLoginRequestForm requestForm, HttpServletResponse response) {
+    public Boolean login(MemberLoginRequestForm requestForm, HttpServletResponse response) {
         Optional<Member> maybeMember = memberRepository.findByEmail(requestForm.getEmail());
 
         if(maybeMember.isPresent()) {
-            if(requestForm.getPassword().equals(maybeMember.get().getPassword())) {
+            if(passwordEncoder.matches(requestForm.getPassword(), maybeMember.get().getPassword())) {
 
                 final Member member = maybeMember.get();
 
@@ -247,8 +243,11 @@ public class MemberServiceImpl implements MemberService{
 
                 response.addCookie(assessCookie);
                 response.addCookie(refreshCookie);
+
+                return true;
             }
         }
+        return false;
     }
 
     // 토큰 검증 후 권한 확인

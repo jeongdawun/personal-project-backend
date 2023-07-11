@@ -3,8 +3,6 @@ package com.happycamper.backend.member.service;
 import com.happycamper.backend.member.controller.form.*;
 import com.happycamper.backend.member.entity.Member;
 import com.happycamper.backend.member.entity.Role;
-import com.happycamper.backend.member.service.request.BusinessMemberRegisterRequest;
-import com.happycamper.backend.member.service.request.NormalMemberRegisterRequest;
 import com.happycamper.backend.member.service.request.SellerInfoRegisterRequest;
 import com.happycamper.backend.member.service.request.UserProfileRegisterRequest;
 import com.happycamper.backend.member.service.response.AuthResponse;
@@ -25,7 +23,7 @@ public interface MemberService {
     String checkEmailAuthorize(CheckEmailAuthorizationRequestForm requestForm);
     Boolean addProfile(UserProfileRegisterRequest request);
     Boolean addSellerInfo(SellerInfoRegisterRequest request);
-    void login(MemberLoginRequestForm requestForm, HttpServletResponse response);
+    Boolean login(MemberLoginRequestForm requestForm, HttpServletResponse response);
     AuthResponse authorize(HttpServletRequest request);
     UserProfileResponse getUserProfile(HttpServletRequest request);
     SellerInfoResponse getSellerInfo(HttpServletRequest request);

@@ -65,8 +65,8 @@ public class MemberController {
     }
 
     @PostMapping("/login")
-    public void login(@RequestBody MemberLoginRequestForm requestForm, HttpServletResponse response) {
-        memberService.login(requestForm, response);
+    public Boolean login(@RequestBody MemberLoginRequestForm requestForm, HttpServletResponse response) {
+        return memberService.login(requestForm, response);
     }
 
     @PostMapping("/auth")

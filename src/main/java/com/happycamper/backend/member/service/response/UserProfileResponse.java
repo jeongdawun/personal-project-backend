@@ -1,14 +1,19 @@
 package com.happycamper.backend.member.service.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class UserProfileResponse {
-    final private String email;
-    final private String name;
-    final private Long contactNumber;
-    final private String nickName;
-    final private String birthday;
+    private String email;
+    private String name;
+    private Long contactNumber;
+    private String nickName;
+    private String birthday;
+
+    public UserProfileResponse(String email) {
+        this.email = email;
+    }
 }

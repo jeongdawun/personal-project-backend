@@ -304,6 +304,11 @@ public class MemberServiceImpl implements MemberService{
 
                                 return response;
                         }
+                        if(maybeUserProfile.isEmpty()) {
+
+                            UserProfileResponse response = new UserProfileResponse(email);
+                            return response;
+                        }
                     }
                 }
             }

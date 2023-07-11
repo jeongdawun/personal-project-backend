@@ -3,18 +3,23 @@ package com.happycamper.backend.product.service;
 import com.happycamper.backend.member.entity.Member;
 import com.happycamper.backend.member.repository.MemberRepository;
 import com.happycamper.backend.product.controller.form.CheckProductNameDuplicateRequestForm;
+import com.happycamper.backend.product.controller.form.StockRequestForm;
 import com.happycamper.backend.product.entity.*;
 import com.happycamper.backend.product.repository.*;
 import com.happycamper.backend.product.service.request.ProductOptionRegisterRequest;
 import com.happycamper.backend.product.service.request.ProductRegisterRequest;
 import com.happycamper.backend.product.service.response.ProductListResponseForm;
 import com.happycamper.backend.product.service.response.ProductReadResponseForm;
+import com.happycamper.backend.product.service.response.StockResponseForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -163,5 +168,84 @@ public class ProductServiceImpl implements ProductService {
         List<ProductImage> productImagesList = productImageRepository.findAllByProductId(product.getId());
 
         return new ProductReadResponseForm(product, productOptionList,  productImagesList);
+    }
+
+    @Override
+    public StockResponseForm checkStock(StockRequestForm requestForm) {
+        String chkin = requestForm.getCheckInDate();
+        String chkout = requestForm.getCheckOutDate();
+        Date CheckInDate = transformchkDate(chkin);
+        Date CheckOutDate = transformchkDate(chkout);
+
+        Long productId = requestForm.getId();
+
+        List<ProductOption> productOptionList = productOptionRepository.findAllByProductId(productId);
+
+        // 최종적으로 반환할 옵션들의 명칭과 빈자리 개수
+        List<String> optionNameList = new ArrayList<>();
+        List<Integer> finalStockList = new ArrayList<>();
+
+        // 사용자가 선택한 상품의 모든 옵션을 돌면서
+        for(ProductOption productOption: productOptionList) {
+
+            // 우선 최종적으로 반환할 옵션명 리스트에 넣어주고
+            optionNameList.add(productOption.getOptionName());
+
+            // 해당 옵션의 id로 options를 찾아서 optionsList에 넣는다. (date-stock 리스트 형태)
+            List<Options> optionsList = optionsRepository.findAllByProductOptionId(productOption.getId());
+
+            // 해당 options들이 가진 빈자리 개수를 넣을 stockList를 선언한다.
+            List<Integer> stockList = new ArrayList<>();
+
+            // 상품 A의 옵션 A가 가진 options(date-stock) 리스트를 돌면서
+            for(Options options: optionsList) {
+
+                // 만약 그 date가 사용자가 원하는 date 내에 해당한다면
+                if (options.getDate().after(CheckInDate) && options.getDate().before(CheckOutDate)) {
+
+                    // stockList에 넣는다.
+                    stockList.add(options.getStock());
+                }
+            }
+            // 사용자가 원하는 date 내에 해당하는 빈자리 개수 중 가장 낮은 값을 추출하고
+            // 최종적으로 반환할 빈자리 리스트에 넣어준다.
+            int min = findMinValue(stockList);
+            finalStockList.add(min);
+        }
+        StockResponseForm responseForm = new StockResponseForm(optionNameList, finalStockList);
+        return responseForm;
+    }
+
+    // 클라이언트에서 보내주는 날짜를 Date 타입으로 변경
+    public Date transformchkDate (String dateString) {
+        String pattern = "yyyy-MM-dd";
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat(pattern);
+        try {
+            Date date = dateFormat.parse(dateString);
+            System.out.println(date);
+            return date;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // 원하는 기간 중 가장 적은 빈자리 개수를 반환
+    private int findMinValue(List<Integer> stocks) {
+        if (stocks.isEmpty()) {
+            throw new IllegalArgumentException("List is empty");
+        }
+
+        int min = stocks.get(0);
+
+        for (int i = 1; i < stocks.size(); i++) {
+            int current = stocks.get(i);
+            if (current < min) {
+                min = current;
+            }
+        }
+
+        return min;
     }
 }

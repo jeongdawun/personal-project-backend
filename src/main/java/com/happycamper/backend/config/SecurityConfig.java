@@ -37,6 +37,7 @@ public class SecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .addFilterBefore(new JwtTokenFilter(memberService, redisService, jwtUtil, secretKey), UsernamePasswordAuthenticationFilter.class)
+                .cors().and()
                 .authorizeRequests()
                 .requestMatchers(permitUrl).permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/**").authenticated()

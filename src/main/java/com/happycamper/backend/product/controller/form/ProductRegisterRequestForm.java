@@ -13,7 +13,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductRegisterRequestForm {
 
-    final private String accessToken;
     final private String productName;
     final private String category;
     final private String productDetails;

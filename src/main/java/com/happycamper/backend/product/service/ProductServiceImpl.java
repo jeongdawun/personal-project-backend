@@ -101,7 +101,7 @@ public class ProductServiceImpl implements ProductService {
                 for(int j = 0; j < optionsList.get(i).size(); j++) {
                     Options options = new Options(
                             optionsList.get(i).get(j).getDate(),
-                            optionsList.get(i).get(j).getStock()
+                            optionsList.get(i).get(j).getCampsiteVacancy()
                     );
                     options.setProductOption(createProductOptionList.get(i));
                     optionsList1.add(options);
@@ -205,7 +205,7 @@ public class ProductServiceImpl implements ProductService {
                 if (options.getDate().after(CheckInDate) && options.getDate().before(CheckOutDate)) {
 
                     // stockList에 넣는다.
-                    stockList.add(options.getStock());
+                    stockList.add(options.getCampsiteVacancy());
                 }
             }
             // 사용자가 원하는 date 내에 해당하는 빈자리 개수 중 가장 낮은 값을 추출하고

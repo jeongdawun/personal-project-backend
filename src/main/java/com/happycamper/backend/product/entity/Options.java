@@ -17,15 +17,15 @@ public class Options {
     @Getter
     private Date date;
     @Getter
-    private Integer stock;
+    private Integer campsiteVacancy;
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_option_id")
     private ProductOption productOption;
 
-    public Options(Date date, Integer stock) {
+    public Options(Date date, Integer campsiteVacancy) {
         this.date = date;
-        this.stock = stock;
+        this.campsiteVacancy = campsiteVacancy;
     }
 }

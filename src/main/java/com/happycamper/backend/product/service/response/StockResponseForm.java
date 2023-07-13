@@ -9,6 +9,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StockResponseForm {
     final private List<String> optionNameList;
-    final private List<Integer> stockList;
+    final private List<Integer> campsiteVacancyList;
 
 }

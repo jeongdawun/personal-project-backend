@@ -11,15 +11,14 @@ import com.happycamper.backend.product.service.request.ProductRegisterRequest;
 import com.happycamper.backend.product.service.response.ProductListResponseForm;
 import com.happycamper.backend.product.service.response.ProductReadResponseForm;
 import com.happycamper.backend.product.service.response.StockResponseForm;
+import com.happycamper.backend.utility.transform.TransFormToDate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -175,16 +174,17 @@ public class ProductServiceImpl implements ProductService {
     public StockResponseForm checkStock(StockRequestForm requestForm) {
         String chkin = requestForm.getCheckInDate();
         String chkout = requestForm.getCheckOutDate();
-        Date CheckInDate = transformchkDate(chkin);
-        Date CheckOutDate = transformchkDate(chkout);
+        LocalDate CheckInDate = TransFormToDate.transformToDate(chkin);
+        LocalDate CheckOutDate = TransFormToDate.transformToDate(chkout);
 
-        Long productId = requestForm.getId();
+        Long productId = requestForm.getId( );
 
         List<ProductOption> productOptionList = productOptionRepository.findAllByProductId(productId);
+        log.info("is present? : " + productOptionList.get(0) + productOptionList.get(1));
 
         // 최종적으로 반환할 옵션들의 명칭과 빈자리 개수
         List<String> optionNameList = new ArrayList<>();
-        List<Integer> finalStockList = new ArrayList<>();
+        List<Integer> finalcampsiteVacancyList = new ArrayList<>();
 
         // 사용자가 선택한 상품의 모든 옵션을 돌면서
         for(ProductOption productOption: productOptionList) {
@@ -200,10 +200,10 @@ public class ProductServiceImpl implements ProductService {
 
             // 상품 A의 옵션 A가 가진 options(date-stock) 리스트를 돌면서
             for(Options options: optionsList) {
-
+                log.info("there is options");
                 // 만약 그 date가 사용자가 원하는 date 내에 해당한다면
-                if (options.getDate().after(CheckInDate) && options.getDate().before(CheckOutDate)) {
-
+                if (options.getDate().isEqual(CheckInDate) || (options.getDate().isAfter(CheckInDate) && options.getDate().isBefore(CheckOutDate))) {
+                    log.info("there is valid date");
                     // stockList에 넣는다.
                     stockList.add(options.getCampsiteVacancy());
                 }
@@ -211,9 +211,10 @@ public class ProductServiceImpl implements ProductService {
             // 사용자가 원하는 date 내에 해당하는 빈자리 개수 중 가장 낮은 값을 추출하고
             // 최종적으로 반환할 빈자리 리스트에 넣어준다.
             int min = findMinValue(stockList);
-            finalStockList.add(min);
+            finalcampsiteVacancyList.add(min);
         }
-        StockResponseForm responseForm = new StockResponseForm(optionNameList, finalStockList);
+        StockResponseForm responseForm = new StockResponseForm(optionNameList, finalcampsiteVacancyList);
+        log.info("값이 궁금해: " + responseForm.getOptionNameList() + " " + responseForm.getCampsiteVacancyList());
         return responseForm;
     }
 
@@ -240,31 +241,16 @@ public class ProductServiceImpl implements ProductService {
         return responseFormList;
     }
 
-    // 클라이언트에서 보내주는 날짜를 Date 타입으로 변경
-    public Date transformchkDate (String dateString) {
-        String pattern = "yyyy-MM-dd";
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat(pattern);
-        try {
-            Date date = dateFormat.parse(dateString);
-            System.out.println(date);
-            return date;
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     // 원하는 기간 중 가장 적은 빈자리 개수를 반환
-    private int findMinValue(List<Integer> stocks) {
-        if (stocks.isEmpty()) {
+    private int findMinValue(List<Integer> campsiteVacancyList) {
+        if (campsiteVacancyList.isEmpty()) {
             throw new IllegalArgumentException("List is empty");
         }
 
-        int min = stocks.get(0);
+        int min = campsiteVacancyList.get(0);
 
-        for (int i = 1; i < stocks.size(); i++) {
-            int current = stocks.get(i);
+        for (int i = 1; i < campsiteVacancyList.size(); i++) {
+            int current = campsiteVacancyList.get(i);
             if (current < min) {
                 min = current;
             }

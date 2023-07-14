@@ -313,19 +313,17 @@ public class ProductServiceImpl implements ProductService {
 
     // 원하는 기간 중 가장 적은 빈자리 개수를 반환
     private int findMinValue(List<Integer> campsiteVacancyList) {
-        if (campsiteVacancyList.isEmpty()) {
-            throw new IllegalArgumentException("List is empty");
-        }
+        if(!campsiteVacancyList.isEmpty()) {
+            int minCampsiteVacancy = campsiteVacancyList.get(0);
 
-        int minCampsiteVacancy = campsiteVacancyList.get(0);
-
-        for (int i = 1; i < campsiteVacancyList.size(); i++) {
-            int current = campsiteVacancyList.get(i);
-            if (current < minCampsiteVacancy) {
-                minCampsiteVacancy = current;
+            for (int i = 1; i < campsiteVacancyList.size(); i++) {
+                int current = campsiteVacancyList.get(i);
+                if (current < minCampsiteVacancy) {
+                    minCampsiteVacancy = current;
+                }
             }
+            return minCampsiteVacancy;
         }
-
-        return minCampsiteVacancy;
+        return 0;
     }
 }

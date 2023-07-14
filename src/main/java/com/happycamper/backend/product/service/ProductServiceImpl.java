@@ -317,15 +317,15 @@ public class ProductServiceImpl implements ProductService {
             throw new IllegalArgumentException("List is empty");
         }
 
-        int min = campsiteVacancyList.get(0);
+        int minCampsiteVacancy = campsiteVacancyList.get(0);
 
         for (int i = 1; i < campsiteVacancyList.size(); i++) {
             int current = campsiteVacancyList.get(i);
-            if (current < min) {
-                min = current;
+            if (current < minCampsiteVacancy) {
+                minCampsiteVacancy = current;
             }
         }
 
-        return min;
+        return minCampsiteVacancy;
     }
 }

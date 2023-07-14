@@ -1,6 +1,5 @@
 package com.happycamper.backend.product.service.request;
 
-import com.happycamper.backend.member.entity.sellerInfo.Address;
 import com.happycamper.backend.product.entity.Product;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +12,7 @@ public class ProductRegisterRequest {
     final private String productName;
     final private String category;
     final private String productDetails;
-    final private Address address;
+    final private String address;
     final private String mainImageName;
     final private List<String> imageNameList;
 

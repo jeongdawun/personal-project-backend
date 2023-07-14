@@ -20,17 +20,14 @@ public class Product {
     private String productName;
     private String category;
     private String productDetails;
-    @Embedded
-    @Setter
-    @Column(nullable = true)
-    private Address address;
+    private String address;
 
     @ManyToOne
     @JoinColumn(name = "member_id")
     @Setter
     private Member member;
 
-    public Product(String productName, String category, String productDetails, Address address) {
+    public Product(String productName, String category, String productDetails, String address) {
         this.productName = productName;
         this.category = category;
         this.productDetails = productDetails;

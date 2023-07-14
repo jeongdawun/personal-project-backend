@@ -2,12 +2,14 @@ package com.happycamper.backend.product.service;
 
 import com.happycamper.backend.member.entity.Member;
 import com.happycamper.backend.member.repository.MemberRepository;
+import com.happycamper.backend.product.controller.form.CampsiteVacancyByMapRequestForm;
 import com.happycamper.backend.product.controller.form.CheckProductNameDuplicateRequestForm;
 import com.happycamper.backend.product.controller.form.StockRequestForm;
 import com.happycamper.backend.product.entity.*;
 import com.happycamper.backend.product.repository.*;
 import com.happycamper.backend.product.service.request.ProductOptionRegisterRequest;
 import com.happycamper.backend.product.service.request.ProductRegisterRequest;
+import com.happycamper.backend.product.service.response.CampsiteVacancyByMapResponseForm;
 import com.happycamper.backend.product.service.response.ProductListResponseForm;
 import com.happycamper.backend.product.service.response.ProductReadResponseForm;
 import com.happycamper.backend.product.service.response.StockResponseForm;
@@ -237,6 +239,74 @@ public class ProductServiceImpl implements ProductService {
                         productOption.getOptionPrice());
                 responseFormList.add(responseForm);
             }
+        }
+        return responseFormList;
+    }
+
+    @Override
+    public List<CampsiteVacancyByMapResponseForm> checkVacancyByDate(CampsiteVacancyByMapRequestForm requestForm) {
+        // 클라이언트로부터 체크인, 체크아웃 날짜를 받아서 localDate 형식으로 변환
+        String chkin = requestForm.getCheckInDate();
+        String chkout = requestForm.getCheckOutDate();
+        LocalDate CheckInDate = TransFormToDate.transformToDate(chkin);
+        LocalDate CheckOutDate = TransFormToDate.transformToDate(chkout);
+
+        log.info("받은 날짜: " + CheckInDate + ", " + CheckOutDate);
+
+        // 모든 상품을 찾아서 list에 넣는다.
+        List<Product> productList = productRepository.findAll();
+        log.info("상품 몇 개? " + productList.size());
+
+        // 반환할 양식을 초기화한다.
+        List<CampsiteVacancyByMapResponseForm> responseFormList = new ArrayList<>();
+
+        // 첫번째 상품을 돌면서
+        for(Product product: productList) {
+            // 해당 상품 옵션의 재고를 list에 저장할 것이다.
+            // 옵션 A - 5개 / 옵션 B - 3개 라고 한다면 list는 [5, 3]
+            List<Integer> allOptionsStockList = new ArrayList<>();
+
+            // 상품 id로 모든 옵션을 찾아서 list에 저장할 것이다.
+            List<ProductOption> productOptionList = productOptionRepository.findAllByProductId(product.getId());
+            log.info("옵션 몇 개? " + productOptionList.size());
+
+            // 첫번째 옵션을 돌면서
+            for(ProductOption productOption: productOptionList) {
+                // 해당 옵션의 재고를 list에 저장할 것이다.
+                List<Integer> stockList = new ArrayList<>();
+
+                // 해당 옵션의 id로 모든 재고를 찾아서 list에 저장할 것이다.
+                List<Options> optionsList = optionsRepository.findAllByProductOptionId(productOption.getId());
+
+                // 그 재고 리스트를 돌면서
+                for(Options options: optionsList) {
+
+                    // 만약 받아온 체크인 날짜와 체크아웃 날짜 사이에 재고가 존재한다면
+                    if (options.getDate().isEqual(CheckInDate) || (options.getDate().isAfter(CheckInDate) && options.getDate().isBefore(CheckOutDate))) {
+                        log.info("there is valid date");
+
+                        // 해당 옵션의 재고 list에 저장할 것이다.
+                        stockList.add(options.getCampsiteVacancy());
+                    }
+                }
+                // 첫번째 재고 리스트의 순환이 끝나면
+                // 재고 리스트의 값 중 가장 낮은 값을 min에 넣을 것이다.
+                int min = findMinValue(stockList);
+                // 그 다음 그것을 해당 상품의 옵션 리스트에 넣을 것이다.
+                allOptionsStockList.add(min);
+            }
+            // 옵션에 대한 모든 재고 파악이 끝났다면
+            // 두 옵션에 대한 재고를 더해서 allstock에 저장할 것이다.
+            int vacancies = 0;
+            for (int stock : allOptionsStockList) {
+                vacancies += stock;
+                log.info("재고 더하기: " + vacancies);
+            }
+            log.info("상품 옵션의 총 재고: " + vacancies);
+
+            CampsiteVacancyByMapResponseForm responseForm =
+                    new CampsiteVacancyByMapResponseForm(product.getId(), vacancies, product.getAddress());
+            responseFormList.add(responseForm);
         }
         return responseFormList;
     }

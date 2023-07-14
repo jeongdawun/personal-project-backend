@@ -2,15 +2,16 @@ package com.happycamper.backend.product.controller;
 
 import com.happycamper.backend.member.service.MemberService;
 import com.happycamper.backend.member.service.response.AuthResponse;
+import com.happycamper.backend.product.controller.form.CampsiteVacancyByMapRequestForm;
 import com.happycamper.backend.product.controller.form.CheckProductNameDuplicateRequestForm;
 import com.happycamper.backend.product.controller.form.ProductRegisterRequestForm;
 import com.happycamper.backend.product.controller.form.StockRequestForm;
 import com.happycamper.backend.product.service.ProductService;
+import com.happycamper.backend.product.service.response.CampsiteVacancyByMapResponseForm;
 import com.happycamper.backend.product.service.response.ProductListResponseForm;
 import com.happycamper.backend.product.service.response.ProductReadResponseForm;
 import com.happycamper.backend.product.service.response.StockResponseForm;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -59,6 +60,11 @@ public class ProductController {
     @PostMapping("/check-stock")
     public StockResponseForm checkStock(@RequestBody StockRequestForm requestForm) {
         return productService.checkStock(requestForm);
+    }
+
+    @PostMapping("/map-vacancy")
+    public List<CampsiteVacancyByMapResponseForm> checkCampsiteVacancyByDate(@RequestBody CampsiteVacancyByMapRequestForm requestForm) {
+        return productService.checkVacancyByDate(requestForm);
     }
 
     @GetMapping("/category/{category}")

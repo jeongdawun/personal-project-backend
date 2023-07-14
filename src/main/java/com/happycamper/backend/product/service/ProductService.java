@@ -1,9 +1,11 @@
 package com.happycamper.backend.product.service;
 
+import com.happycamper.backend.product.controller.form.CampsiteVacancyByMapRequestForm;
 import com.happycamper.backend.product.controller.form.CheckProductNameDuplicateRequestForm;
 import com.happycamper.backend.product.controller.form.StockRequestForm;
 import com.happycamper.backend.product.service.request.ProductOptionRegisterRequest;
 import com.happycamper.backend.product.service.request.ProductRegisterRequest;
+import com.happycamper.backend.product.service.response.CampsiteVacancyByMapResponseForm;
 import com.happycamper.backend.product.service.response.ProductListResponseForm;
 import com.happycamper.backend.product.service.response.ProductReadResponseForm;
 import com.happycamper.backend.product.service.response.StockResponseForm;
@@ -18,4 +20,5 @@ public interface ProductService {
     ProductReadResponseForm read(Long id);
     StockResponseForm checkStock(StockRequestForm requestForm);
     List<ProductListResponseForm> listByCategory(String category);
+    List<CampsiteVacancyByMapResponseForm> checkVacancyByDate(CampsiteVacancyByMapRequestForm requestForm);
 }

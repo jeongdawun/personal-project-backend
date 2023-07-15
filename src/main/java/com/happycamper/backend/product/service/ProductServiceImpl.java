@@ -9,10 +9,7 @@ import com.happycamper.backend.product.entity.*;
 import com.happycamper.backend.product.repository.*;
 import com.happycamper.backend.product.service.request.ProductOptionRegisterRequest;
 import com.happycamper.backend.product.service.request.ProductRegisterRequest;
-import com.happycamper.backend.product.service.response.CampsiteVacancyByMapResponseForm;
-import com.happycamper.backend.product.service.response.ProductListResponseForm;
-import com.happycamper.backend.product.service.response.ProductReadResponseForm;
-import com.happycamper.backend.product.service.response.StockResponseForm;
+import com.happycamper.backend.product.service.response.*;
 import com.happycamper.backend.utility.number.NumberUtils;
 import com.happycamper.backend.utility.transform.TransformToDate;
 import lombok.RequiredArgsConstructor;
@@ -186,10 +183,18 @@ public class ProductServiceImpl implements ProductService {
         // 2. 상품 Id로 상품 옵션 리스트 찾기
         List<ProductOption> productOptionList = productOptionRepository.findAllByProductId(product.getId());
 
+        List<ProductOptionResponseForm> responseFormList = new ArrayList<>();
+
+        for(ProductOption productOption: productOptionList) {
+            ProductOptionResponseForm responseForm =
+                    new ProductOptionResponseForm(productOption.getId(), productOption.getOptionName(), productOption.getOptionPrice());
+            responseFormList.add(responseForm);
+        }
+
         // 3. 상품 이미지 모두 찾아서 리스트에 담기
         List<ProductImage> productImagesList = productImageRepository.findAllByProductId(product.getId());
 
-        return new ProductReadResponseForm(product, productOptionList,  productImagesList);
+        return new ProductReadResponseForm(product, responseFormList,  productImagesList);
     }
 
     @Override

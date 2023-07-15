@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
-public class TransFormToDate {
+public class TransformToDate {
 
     public static LocalDate transformToDate(String dateString) {
         String pattern = "yyyy-MM-dd";

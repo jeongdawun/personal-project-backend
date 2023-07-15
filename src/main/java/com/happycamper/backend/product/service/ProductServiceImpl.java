@@ -13,7 +13,8 @@ import com.happycamper.backend.product.service.response.CampsiteVacancyByMapResp
 import com.happycamper.backend.product.service.response.ProductListResponseForm;
 import com.happycamper.backend.product.service.response.ProductReadResponseForm;
 import com.happycamper.backend.product.service.response.StockResponseForm;
-import com.happycamper.backend.utility.transform.TransFormToDate;
+import com.happycamper.backend.utility.number.NumberUtils;
+import com.happycamper.backend.utility.transform.TransformToDate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
@@ -136,7 +137,15 @@ public class ProductServiceImpl implements ProductService {
         List<ProductListResponseForm> responseFormList = new ArrayList<>();
 
         for(Product product : productList) {
-            ProductOption productOption = productOptionRepository.findMinPriceOptionByProductId(product.getId());
+            List<ProductOption> productOptionList = productOptionRepository.findAllByProductId(product.getId());
+
+            List<Integer> optionPriceList = new ArrayList<>();
+
+            for(ProductOption productOption: productOptionList) {
+                optionPriceList.add(productOption.getOptionPrice());
+            }
+            int minPrice = NumberUtils.findMinValue(optionPriceList);
+
             Optional<ProductMainImage> productMainImage = productMainImageRepository.findById(product.getId());
 
             if(productMainImage.isPresent()) {
@@ -145,7 +154,7 @@ public class ProductServiceImpl implements ProductService {
                         product.getProductName(),
                         product.getCategory(),
                         productMainImage.get().getMainImageName(),
-                        productOption.getOptionPrice());
+                        minPrice);
                 responseFormList.add(responseForm);
             }
         }
@@ -176,8 +185,8 @@ public class ProductServiceImpl implements ProductService {
     public StockResponseForm checkStock(StockRequestForm requestForm) {
         String chkin = requestForm.getCheckInDate();
         String chkout = requestForm.getCheckOutDate();
-        LocalDate CheckInDate = TransFormToDate.transformToDate(chkin);
-        LocalDate CheckOutDate = TransFormToDate.transformToDate(chkout);
+        LocalDate CheckInDate = TransformToDate.transformToDate(chkin);
+        LocalDate CheckOutDate = TransformToDate.transformToDate(chkout);
 
         Long productId = requestForm.getId( );
 
@@ -212,7 +221,7 @@ public class ProductServiceImpl implements ProductService {
             }
             // 사용자가 원하는 date 내에 해당하는 빈자리 개수 중 가장 낮은 값을 추출하고
             // 최종적으로 반환할 빈자리 리스트에 넣어준다.
-            int min = findMinValue(stockList);
+            int min = NumberUtils.findMinValue(stockList);
             finalcampsiteVacancyList.add(min);
         }
         StockResponseForm responseForm = new StockResponseForm(optionNameList, finalcampsiteVacancyList);
@@ -227,7 +236,15 @@ public class ProductServiceImpl implements ProductService {
         List<ProductListResponseForm> responseFormList = new ArrayList<>();
 
         for(Product product : productList) {
-            ProductOption productOption = productOptionRepository.findMinPriceOptionByProductId(product.getId());
+            List<ProductOption> productOptionList = productOptionRepository.findAllByProductId(product.getId());
+
+            List<Integer> optionPriceList = new ArrayList<>();
+
+            for(ProductOption productOption: productOptionList) {
+                optionPriceList.add(productOption.getOptionPrice());
+            }
+            int minPrice = NumberUtils.findMinValue(optionPriceList);
+
             Optional<ProductMainImage> productMainImage = productMainImageRepository.findById(product.getId());
             
             if(productMainImage.isPresent()) {
@@ -236,7 +253,7 @@ public class ProductServiceImpl implements ProductService {
                         product.getProductName(),
                         product.getCategory(),
                         productMainImage.get().getMainImageName(),
-                        productOption.getOptionPrice());
+                        minPrice);
                 responseFormList.add(responseForm);
             }
         }
@@ -248,8 +265,8 @@ public class ProductServiceImpl implements ProductService {
         // 클라이언트로부터 체크인, 체크아웃 날짜를 받아서 localDate 형식으로 변환
         String chkin = requestForm.getCheckInDate();
         String chkout = requestForm.getCheckOutDate();
-        LocalDate CheckInDate = TransFormToDate.transformToDate(chkin);
-        LocalDate CheckOutDate = TransFormToDate.transformToDate(chkout);
+        LocalDate CheckInDate = TransformToDate.transformToDate(chkin);
+        LocalDate CheckOutDate = TransformToDate.transformToDate(chkout);
 
         log.info("Period: " + CheckInDate + " ~ " + CheckOutDate);
 
@@ -291,7 +308,7 @@ public class ProductServiceImpl implements ProductService {
                 }
                 // 첫번째 재고 리스트의 순환이 끝나면
                 // 재고 리스트의 값 중 가장 낮은 값을 min에 넣을 것이다.
-                int min = findMinValue(stockList);
+                int min = NumberUtils.findMinValue(stockList);
                 // 그 다음 그것을 해당 상품의 옵션 리스트에 넣을 것이다.
                 allOptionsStockList.add(min);
             }
@@ -309,21 +326,5 @@ public class ProductServiceImpl implements ProductService {
             responseFormList.add(responseForm);
         }
         return responseFormList;
-    }
-
-    // 원하는 기간 중 가장 적은 빈자리 개수를 반환
-    private int findMinValue(List<Integer> campsiteVacancyList) {
-        if(!campsiteVacancyList.isEmpty()) {
-            int minCampsiteVacancy = campsiteVacancyList.get(0);
-
-            for (int i = 1; i < campsiteVacancyList.size(); i++) {
-                int current = campsiteVacancyList.get(i);
-                if (current < minCampsiteVacancy) {
-                    minCampsiteVacancy = current;
-                }
-            }
-            return minCampsiteVacancy;
-        }
-        return 0;
     }
 }

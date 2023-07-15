@@ -3,7 +3,7 @@ package com.happycamper.backend.product.controller.form;
 import com.happycamper.backend.product.entity.Options;
 import com.happycamper.backend.product.service.request.ProductOptionRegisterRequest;
 import com.happycamper.backend.product.service.request.ProductRegisterRequest;
-import com.happycamper.backend.utility.transform.TransFormToDate;
+import com.happycamper.backend.utility.transform.TransformToDate;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -29,8 +29,8 @@ public class ProductRegisterRequestForm {
         List<List<Options>> optionsList = new ArrayList<>();
 
         for(ProductOptionRegisterRequestForm optionsRequest: optionsRegisterRequestFormList) {
-            LocalDate startDate = TransFormToDate.transformToDate(optionsRequest.getStartDate());
-            LocalDate endDate = TransFormToDate.transformToDate(optionsRequest.getEndDate());
+            LocalDate startDate = TransformToDate.transformToDate(optionsRequest.getStartDate());
+            LocalDate endDate = TransformToDate.transformToDate(optionsRequest.getEndDate());
 
             List<Options> generateOptionsList = optionsRequest.generateOptionsList(startDate, endDate, optionsRequest.getCampsiteVacancy());
             optionsList.add(generateOptionsList);

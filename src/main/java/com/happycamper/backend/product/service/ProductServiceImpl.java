@@ -118,16 +118,27 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void delete(Long id) {
+    public void delete(String email, Long id) {
 
-        List<ProductOption> productOptionList = productOptionRepository.findAllByProductId(id);
-        for(ProductOption productOption : productOptionList) {
-            optionsRepository.deleteAllByProductOptionId(productOption.getId());
+        Optional<Member> maybeMember = memberRepository.findByEmail(email);
+
+        if(maybeMember.isPresent()) {
+            Optional<Product> maybeProduct = productRepository.findProductById(id);
+            Member memberByProduct = maybeProduct.get().getMember();
+            if(memberByProduct.getId().equals(maybeMember.get().getId())) {
+                List<ProductOption> productOptionList = productOptionRepository.findAllByProductId(id);
+                for(ProductOption productOption : productOptionList) {
+                    optionsRepository.deleteAllByProductOptionId(productOption.getId());
+                }
+                productOptionRepository.deleteAllByProductId(id);
+                productImageRepository.deleteAllByProductId(id);
+                productMainImageRepository.deleteByProductId(id);
+                productRepository.deleteById(id);
+            }
+            else {
+                log.info("Cannot delete");
+            }
         }
-        productOptionRepository.deleteAllByProductId(id);
-        productImageRepository.deleteAllByProductId(id);
-        productMainImageRepository.deleteByProductId(id);
-        productRepository.deleteById(id);
     }
 
     @Override

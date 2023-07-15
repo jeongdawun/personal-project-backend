@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.happycamper.backend.member.entity.RoleType.NORMAL;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -42,8 +44,12 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteProduct(@PathVariable("id") Long id) {
-        productService.delete(id);
+    public void deleteProduct(HttpServletRequest request, @PathVariable("id") Long id) {
+
+        AuthResponse authResponse = memberService.authorize(request);
+        String email = authResponse.getEmail();
+        log.info("what is your email: " + email);
+        productService.delete(email, id);
     }
 
     @GetMapping("/list")

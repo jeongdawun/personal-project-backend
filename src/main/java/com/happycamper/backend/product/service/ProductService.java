@@ -15,7 +15,7 @@ import java.util.List;
 public interface ProductService {
     Boolean checkProductNameDuplicate(CheckProductNameDuplicateRequestForm requestForm);
     Boolean register(String email, ProductRegisterRequest productRegisterRequest, ProductOptionRegisterRequest optionRegisterRequest);
-    void delete(Long id);
+    void delete(String email, Long id);
     List<ProductListResponseForm> list();
     ProductReadResponseForm read(Long id);
     StockResponseForm checkStock(StockRequestForm requestForm);

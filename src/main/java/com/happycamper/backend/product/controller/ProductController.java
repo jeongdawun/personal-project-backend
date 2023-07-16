@@ -7,18 +7,13 @@ import com.happycamper.backend.product.controller.form.CheckProductNameDuplicate
 import com.happycamper.backend.product.controller.form.ProductRegisterRequestForm;
 import com.happycamper.backend.product.controller.form.StockRequestForm;
 import com.happycamper.backend.product.service.ProductService;
-import com.happycamper.backend.product.service.response.CampsiteVacancyByMapResponseForm;
-import com.happycamper.backend.product.service.response.ProductListResponseForm;
-import com.happycamper.backend.product.service.response.ProductReadResponseForm;
-import com.happycamper.backend.product.service.response.StockResponseForm;
+import com.happycamper.backend.product.service.response.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
-import static com.happycamper.backend.member.entity.RoleType.NORMAL;
 
 @Slf4j
 @RestController
@@ -56,6 +51,14 @@ public class ProductController {
     public List<ProductListResponseForm> productList () {
         List<ProductListResponseForm> ProductList = productService.list();
         return ProductList;
+    }
+
+    @GetMapping("/myList")
+    public MyProductListResponseForm myProductList (HttpServletRequest request) {
+        AuthResponse authResponse = memberService.authorize(request);
+        String email = authResponse.getEmail();
+
+        return productService.myList(email);
     }
 
     @GetMapping("/{id}")

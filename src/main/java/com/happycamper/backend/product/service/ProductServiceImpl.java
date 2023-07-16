@@ -343,4 +343,58 @@ public class ProductServiceImpl implements ProductService {
         }
         return responseFormList;
     }
+
+    @Override
+    public MyProductListResponseForm myList(String email) {
+
+        // 판매자 계정 찾기
+        Optional<Member> maybeMember = memberRepository.findByEmail(email);
+        if(maybeMember.isPresent()) {
+            Member member = maybeMember.get();
+
+            // 판매자 계정으로 등록된 상품 찾기
+            Optional<Product> maybeProduct = productRepository.findByMember(member);
+            if(maybeProduct.isPresent()) {
+                Product product = maybeProduct.get();
+                System.out.println("product is present");
+
+                List<ProductOptionWithVacancyResponseForm> responseFormList = new ArrayList<>();
+                List<ProductOptionResponseForm> responseFormList1 = new ArrayList<>();
+
+                // 해당 상품의 옵션 리스트를 모두 찾기
+                List<ProductOption> productOptionList = productOptionRepository.findAllByProductId(product.getId());
+
+                System.out.println("productOptionList is present");
+                for(ProductOption productOption: productOptionList) {
+
+                    ProductOptionResponseForm productOptionResponseForm =
+                            new ProductOptionResponseForm(productOption.getId(), productOption.getOptionName(), productOption.getOptionPrice());
+
+                    // 해당 옵션의 빈자리 리스트 찾기
+                    List<Options> optionsList = optionsRepository.findAllByProductOptionId(productOption.getId());
+
+                    System.out.println("optionsList is present");
+                    for(Options options: optionsList) {
+                        List<LocalDate> dateList = new ArrayList<>();
+                        List<Integer> campsiteVacancyList = new ArrayList<>();
+
+                        dateList.add(options.getDate());
+                        campsiteVacancyList.add(options.getCampsiteVacancy());
+                        ProductOptionWithVacancyResponseForm responseForm =
+                                new ProductOptionWithVacancyResponseForm(
+                                        productOption.getId(),
+                                        dateList, campsiteVacancyList);
+                        responseFormList.add(responseForm);
+                    }
+                    responseFormList1.add(productOptionResponseForm);
+                }
+
+                ProductMainImage productMainImage = productMainImageRepository.findByProductId(product.getId());
+                List<ProductImage> productImagesList = productImageRepository.findAllByProductId(product.getId());
+
+                return new MyProductListResponseForm(product, responseFormList1, responseFormList, productMainImage, productImagesList);
+            }
+        }
+        return null;
+    }
 }

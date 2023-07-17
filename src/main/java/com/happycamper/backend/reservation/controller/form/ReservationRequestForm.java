@@ -1,6 +1,5 @@
 package com.happycamper.backend.reservation.controller.form;
 
-import com.happycamper.backend.reservation.entity.ReservationDetails;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -14,8 +13,4 @@ public class ReservationRequestForm {
     final private String checkOutDate;
     final private int amount;
     final private String bookingNotes;
-
-    public ReservationDetails toReservationDetails() {
-        return new ReservationDetails(userName, contactNumber, checkInDate, checkOutDate, amount, bookingNotes);
-    }
 }

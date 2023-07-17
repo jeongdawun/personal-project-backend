@@ -1,6 +1,8 @@
 package com.happycamper.backend.reservation.service;
 
 import com.happycamper.backend.member.entity.Member;
+import com.happycamper.backend.member.entity.MemberRole;
+import com.happycamper.backend.member.entity.Role;
 import com.happycamper.backend.member.repository.MemberRepository;
 import com.happycamper.backend.product.entity.Options;
 import com.happycamper.backend.product.entity.ProductOption;
@@ -8,9 +10,9 @@ import com.happycamper.backend.product.repository.OptionsRepository;
 import com.happycamper.backend.product.repository.ProductOptionRepository;
 import com.happycamper.backend.reservation.controller.form.ReservationRequestForm;
 import com.happycamper.backend.reservation.entity.Reservation;
-import com.happycamper.backend.reservation.entity.ReservationDetails;
-import com.happycamper.backend.reservation.repository.ReservationDetailsRepository;
+import com.happycamper.backend.reservation.entity.ReservationStatus;
 import com.happycamper.backend.reservation.repository.ReservationRepository;
+import com.happycamper.backend.reservation.repository.ReservationStatusRepository;
 import com.happycamper.backend.utility.transform.TransformToDate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,12 +23,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.happycamper.backend.reservation.entity.Status.REQUESTED;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReservationServiceImpl implements ReservationService {
     final private ReservationRepository reservationRepository;
-    final private ReservationDetailsRepository reservationDetailsRepository;
+    final private ReservationStatusRepository reservationStatusRepository;
     final private ProductOptionRepository productOptionRepository;
     final private OptionsRepository optionsRepository;
     final private MemberRepository memberRepository;
@@ -37,6 +41,7 @@ public class ReservationServiceImpl implements ReservationService {
         // 사용자의 토큰으로 사용자 특정하기
         Optional<Member> maybeMember = memberRepository.findByEmail(email);
         if(maybeMember.isEmpty()) {
+            log.info("사용자 확인 불가");
             return false;
         }
         Member member = maybeMember.get();
@@ -52,6 +57,7 @@ public class ReservationServiceImpl implements ReservationService {
         Optional<ProductOption> maybeProductOption = productOptionRepository.findById(productOptionId);
 
         if(maybeProductOption.isEmpty()) {
+            log.info("상품 옵션 확인 불가");
             return false;
         }
         ProductOption productOption = maybeProductOption.get();
@@ -67,6 +73,7 @@ public class ReservationServiceImpl implements ReservationService {
 
                 // 빈자리가 0개인 경우 false
                 if(options.getCampsiteVacancy() < 1) {
+                    log.info("재고 없음");
                     return false;
                 }
                 int campsiteVacancy = options.getCampsiteVacancy();
@@ -78,14 +85,27 @@ public class ReservationServiceImpl implements ReservationService {
         }
         optionsRepository.saveAll(updatedOptionsList);
 
+        int payment = productOption.getOptionPrice() * requestForm.getAmount();
+
+
         // 예약 객체 생성
-        Reservation reservation = new Reservation(LocalDate.now(), productOption, member);
+        Reservation reservation =
+                new Reservation(
+                        LocalDate.now(),
+                        requestForm.getUserName(),
+                        requestForm.getContactNumber(),
+                        CheckInDate,
+                        CheckOutDate,
+                        requestForm.getAmount(),
+                        payment,
+                        requestForm.getBookingNotes(),
+                        productOption,
+                        member);
         reservationRepository.save(reservation);
 
-        // 예약 상세내용 객체 생성
-        ReservationDetails details = requestForm.toReservationDetails();
-        details.setReservation(reservation);
-        reservationDetailsRepository.save(details);
+        ReservationStatus reservationStatus = new ReservationStatus(REQUESTED);
+        reservationStatus.setReservation(reservation);
+        reservationStatusRepository.save(reservationStatus);
 
         return true;
     }

@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.Calendar;
 import java.util.Date;
 
 @Slf4j
@@ -19,6 +20,25 @@ public class JwtUtil {
                 .setSigningKey(secretKey)
                 .parseClaimsJws(token)
                 .getBody().getExpiration().before(new Date());
+    }
+
+    public static boolean tenMinutesBeforeExpired(String token, String secretKey) {
+
+        Date expirationTime = Jwts.parser()
+                .setSigningKey(secretKey)
+                .parseClaimsJws(token)
+                .getBody().getExpiration();
+
+        log.info("만료 예정 시간: " + expirationTime);
+
+        Date currentTime = new Date();
+        log.info("현재 시간: " + currentTime);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(currentTime);
+        calendar.add(Calendar.MINUTE, 10);
+
+        return expirationTime.before(calendar.getTime());
     }
 
     // 토큰 생성(accessToken은 만료 시간을 짧게, refreshToken은 길게 설정한다.)

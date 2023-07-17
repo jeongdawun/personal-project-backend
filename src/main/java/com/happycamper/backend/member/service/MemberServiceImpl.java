@@ -231,6 +231,7 @@ public class MemberServiceImpl implements MemberService{
 
                 final Member member = maybeMember.get();
 
+                // 6시간 6 * 60 * 60 * 1000
                 String accessToken = jwtUtil.generateToken(requestForm.getEmail(), secretKey, 6 * 60 * 60 * 1000);
                 String refreshToken = jwtUtil.generateToken(requestForm.getEmail(), secretKey, 2 * 7 * 24 * 60 * 60 * 1000);
                 redisService.setKeyAndValue(refreshToken, member.getId());
@@ -238,6 +239,7 @@ public class MemberServiceImpl implements MemberService{
                 System.out.println("AccessToken: " + accessToken);
                 System.out.println("RefreshToken: " + refreshToken);
 
+                // 6시간 60 * 60 * 6
                 Cookie assessCookie = jwtUtil.generateCookie("AccessToken", accessToken, 60 * 60 * 6, false);
                 Cookie refreshCookie = jwtUtil.generateCookie("RefreshToken", refreshToken, 60 * 60 * 24 * 14, true);
 

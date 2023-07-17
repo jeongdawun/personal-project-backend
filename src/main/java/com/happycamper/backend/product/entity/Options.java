@@ -18,6 +18,7 @@ public class Options {
     @Getter
     private LocalDate date;
     @Getter
+    @Setter
     private Integer campsiteVacancy;
 
     @Setter

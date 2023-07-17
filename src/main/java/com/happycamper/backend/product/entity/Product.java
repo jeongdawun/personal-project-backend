@@ -15,6 +15,7 @@ import lombok.ToString;
 @NoArgsConstructor
 public class Product {
     @Id
+    @Column(name = "product_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String productName;

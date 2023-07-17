@@ -1,13 +1,13 @@
 package com.happycamper.backend.reservation.service;
 
 import com.happycamper.backend.member.entity.Member;
-import com.happycamper.backend.member.entity.MemberRole;
-import com.happycamper.backend.member.entity.Role;
 import com.happycamper.backend.member.repository.MemberRepository;
 import com.happycamper.backend.product.entity.Options;
+import com.happycamper.backend.product.entity.Product;
 import com.happycamper.backend.product.entity.ProductOption;
 import com.happycamper.backend.product.repository.OptionsRepository;
 import com.happycamper.backend.product.repository.ProductOptionRepository;
+import com.happycamper.backend.product.repository.ProductRepository;
 import com.happycamper.backend.reservation.controller.form.ReservationRequestForm;
 import com.happycamper.backend.reservation.entity.Reservation;
 import com.happycamper.backend.reservation.entity.ReservationStatus;
@@ -31,6 +31,7 @@ import static com.happycamper.backend.reservation.entity.Status.REQUESTED;
 public class ReservationServiceImpl implements ReservationService {
     final private ReservationRepository reservationRepository;
     final private ReservationStatusRepository reservationStatusRepository;
+    final private ProductRepository productRepository;
     final private ProductOptionRepository productOptionRepository;
     final private OptionsRepository optionsRepository;
     final private MemberRepository memberRepository;
@@ -51,6 +52,17 @@ public class ReservationServiceImpl implements ReservationService {
         String chkout = requestForm.getCheckOutDate();
         LocalDate CheckInDate = TransformToDate.transformToDate(chkin);
         LocalDate CheckOutDate = TransformToDate.transformToDate(chkout);
+
+        // 받아온 productOption id로 productOption 찾기
+        Long productId = requestForm.getProductId();
+        Optional<Product> maybeProduct = productRepository.findById(productId);
+
+        if(maybeProduct.isEmpty()) {
+            log.info("상품 확인 불가");
+            return false;
+        }
+        Product product = maybeProduct.get();
+
 
         // 받아온 productOption id로 productOption 찾기
         Long productOptionId = requestForm.getProductOptionId();
@@ -99,6 +111,7 @@ public class ReservationServiceImpl implements ReservationService {
                         requestForm.getAmount(),
                         payment,
                         requestForm.getBookingNotes(),
+                        product,
                         productOption,
                         member);
         reservationRepository.save(reservation);

@@ -12,6 +12,7 @@ import lombok.Setter;
 public class ProductOption {
 
     @Id
+    @Column(name = "product_option_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Getter

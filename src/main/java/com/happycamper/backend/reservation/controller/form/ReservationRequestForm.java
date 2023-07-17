@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class ReservationRequestForm {
+    final private Long productId;
     final private Long productOptionId;
     final private String userName;
     final private Long contactNumber;

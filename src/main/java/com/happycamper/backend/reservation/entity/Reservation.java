@@ -1,6 +1,7 @@
 package com.happycamper.backend.reservation.entity;
 
 import com.happycamper.backend.member.entity.Member;
+import com.happycamper.backend.product.entity.Product;
 import com.happycamper.backend.product.entity.ProductOption;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -28,6 +29,11 @@ public class Reservation {
     private String bookingNotes;
 
     @ManyToOne
+    @JoinColumn(name = "product_id")
+    @Setter
+    private Product product;
+
+    @ManyToOne
     @JoinColumn(name = "product_option_id")
     @Setter
     private ProductOption productOption;
@@ -37,7 +43,7 @@ public class Reservation {
     @Setter
     private Member member;
 
-    public Reservation(LocalDate reservationDate, String userName, Long contactNumber, LocalDate checkInDate, LocalDate checkOutDate, int amount, int payment, String bookingNotes, ProductOption productOption, Member member) {
+    public Reservation(LocalDate reservationDate, String userName, Long contactNumber, LocalDate checkInDate, LocalDate checkOutDate, int amount, int payment, String bookingNotes, Product product, ProductOption productOption, Member member) {
         this.reservationDate = reservationDate;
         this.userName = userName;
         this.contactNumber = contactNumber;
@@ -46,6 +52,7 @@ public class Reservation {
         this.amount = amount;
         this.payment = payment;
         this.bookingNotes = bookingNotes;
+        this.product = product;
         this.productOption = productOption;
         this.member = member;
     }

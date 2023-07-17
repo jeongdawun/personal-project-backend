@@ -28,7 +28,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private final RedisService redisService;
     private final JwtUtil jwtUtil;
     private final String secretKey;
-    private final long accessTokenValidTimeMs = 6 * 60 * 60 * 1000; // 6시간 유지
+    private final long accessTokenValidTimeMs = 6 * 60 * 60 * 1000; // 6시간 유지 6 * 60 * 60 * 1000
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
@@ -52,15 +52,9 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             }
         }
 
-        // 가져온 accessToken이 없으면 Block
+        // 가져온 accessToken이 없으면 Block (만료된 경우 null으로 들어옴)
         if (accessToken == null) {
-            log.info("accessToken이 없습니다.");
-            return;
-        }
-
-        // 가져온 accessToken의 만료 시간이 10분이 남아있지 않으면
-        // 쿠키에서 refreshToken 꺼내기
-        if (jwtUtil.tenMinutesBeforeExpired(accessToken, secretKey)) {
+            log.info("accessToken이 만료되었습니다.");
             for (Cookie cookie : cookies) {
                 if (cookie.getName().equals("RefreshToken")) {
                     refreshToken = cookie.getValue();
@@ -68,6 +62,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                     break;
                 }
             }
+
             // refreshToken이 null이라면 Block
             if (refreshToken == null) {
                 log.info("refreshToken이 없습니다.");

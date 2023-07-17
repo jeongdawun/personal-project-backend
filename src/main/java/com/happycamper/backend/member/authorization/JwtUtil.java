@@ -16,29 +16,16 @@ public class JwtUtil {
 
     // 토큰 만료 여부 검증(현재 시간 기준으로 만료되었는지 확인)
     public static boolean isExpired(String token, String secretKey) {
-        return Jwts.parser()
-                .setSigningKey(secretKey)
-                .parseClaimsJws(token)
-                .getBody().getExpiration().before(new Date());
-    }
+        try {
+            Date expirationTime = Jwts.parser()
+                    .setSigningKey(secretKey)
+                    .parseClaimsJws(token)
+                    .getBody().getExpiration();
 
-    public static boolean tenMinutesBeforeExpired(String token, String secretKey) {
-
-        Date expirationTime = Jwts.parser()
-                .setSigningKey(secretKey)
-                .parseClaimsJws(token)
-                .getBody().getExpiration();
-
-        log.info("만료 예정 시간: " + expirationTime);
-
-        Date currentTime = new Date();
-        log.info("현재 시간: " + currentTime);
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(currentTime);
-        calendar.add(Calendar.MINUTE, 10);
-
-        return expirationTime.before(calendar.getTime());
+            return expirationTime.before(new Date());
+        } catch (JwtException e) {
+            return true;
+        }
     }
 
     // 토큰 생성(accessToken은 만료 시간을 짧게, refreshToken은 길게 설정한다.)

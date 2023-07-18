@@ -484,6 +484,13 @@ public class MemberServiceImpl implements MemberService{
             memberRoleRepository.deleteByMemberId(member.getId());
             memberRepository.delete(member);
 
+            Cookie assessCookie = jwtUtil.generateCookie("AccessToken", null, 0, false);
+            response.addCookie(assessCookie);
+
+            Cookie refreshCookie = jwtUtil.generateCookie("RefreshToken", null, 0, true);
+            response.addCookie(refreshCookie);
+
+            redisService.deleteByKey(refreshToken);
             return true;
         }
         return false;

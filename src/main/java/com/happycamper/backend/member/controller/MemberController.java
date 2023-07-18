@@ -101,7 +101,7 @@ public class MemberController {
         memberService.logout(request, response);
     }
 
-    @PostMapping("/withdraw")
+    @GetMapping("/withdraw")
     public Boolean withdraw(HttpServletRequest request, HttpServletResponse response, @RequestParam("password") String password) {
         return memberService.withdraw(request, response, password);
     }

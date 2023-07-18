@@ -1,7 +1,10 @@
 package com.happycamper.backend.reservation.service;
 
 import com.happycamper.backend.member.entity.Member;
+import com.happycamper.backend.member.entity.MemberRole;
 import com.happycamper.backend.member.repository.MemberRepository;
+import com.happycamper.backend.member.repository.MemberRoleRepository;
+import com.happycamper.backend.member.service.response.AuthResponse;
 import com.happycamper.backend.product.entity.Options;
 import com.happycamper.backend.product.entity.Product;
 import com.happycamper.backend.product.entity.ProductOption;
@@ -11,9 +14,11 @@ import com.happycamper.backend.product.repository.ProductRepository;
 import com.happycamper.backend.reservation.controller.form.ReservationRequestForm;
 import com.happycamper.backend.reservation.entity.Reservation;
 import com.happycamper.backend.reservation.entity.ReservationStatus;
+import com.happycamper.backend.reservation.entity.Status;
 import com.happycamper.backend.reservation.repository.ReservationRepository;
 import com.happycamper.backend.reservation.repository.ReservationStatusRepository;
 import com.happycamper.backend.reservation.service.response.MyReservationResponseForm;
+import com.happycamper.backend.reservation.service.response.MyReservationStatusResponseForm;
 import com.happycamper.backend.utility.transform.TransformToDate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,10 +26,11 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static com.happycamper.backend.reservation.entity.Status.REQUESTED;
+import static com.happycamper.backend.reservation.entity.Status.*;
 
 @Slf4j
 @Service
@@ -36,6 +42,7 @@ public class ReservationServiceImpl implements ReservationService {
     final private ProductOptionRepository productOptionRepository;
     final private OptionsRepository optionsRepository;
     final private MemberRepository memberRepository;
+    final private MemberRoleRepository memberRoleRepository;
 
     @Override
     public Boolean register(String email, ReservationRequestForm requestForm) {
@@ -174,5 +181,64 @@ public class ReservationServiceImpl implements ReservationService {
             responseFormList.add(responseForm);
         }
         return responseFormList;
+    }
+
+    @Override
+    public MyReservationStatusResponseForm searchMyReservationStatus(String email) {
+        // 사용자의 토큰으로 사용자 특정하기
+        Optional<Member> maybeMember = memberRepository.findByEmail(email);
+        if(maybeMember.isEmpty()) {
+            log.info("사용자 확인 불가");
+            return null;
+        }
+        Member member = maybeMember.get();
+
+        Optional<MemberRole> maybeMemberRole = memberRoleRepository.findByMember(member);
+        if(maybeMemberRole.isEmpty()) {
+            log.info("사용자 확인 불가");
+            return null;
+        }
+        AuthResponse authResponse = new AuthResponse(email, maybeMemberRole.get().getRole().getRoleType().toString());
+
+        // 해당 사용자의 예약 리스트 가져오기
+        List<Reservation> reservationList = reservationRepository.findAllByMember(member);
+
+        int requestedAmount = 0;
+        int completedAmount = 0;
+        int cancelRequestedAmount = 0;
+        int canceledAmount = 0;
+
+        // 예약 리스트를 순회하면서 상태 업데이트하기(일단 예약 신청, 이용 완료로만 구분)
+        for(Reservation reservation: reservationList) {
+            if(reservation.getCheckOutDate().equals(LocalDate.now()) || reservation.getCheckOutDate().isBefore(LocalDate.now())){
+                ReservationStatus reservationStatus = reservationStatusRepository.findByReservation(reservation);
+                reservationStatus.setStatus(COMPLETED);
+                reservationStatusRepository.save(reservationStatus);
+            }
+
+            ReservationStatus reservationStatus = reservationStatusRepository.findByReservation(reservation);
+            switch (reservationStatus.getStatus()) {
+                case REQUESTED:
+                    requestedAmount++;
+                    break;
+                case COMPLETED:
+                    completedAmount++;
+                    break;
+                case CANCEL_REQUESTED:
+                    cancelRequestedAmount++;
+                    break;
+                case CANCELLED:
+                    canceledAmount++;
+                    break;
+                default:
+                    break;
+            }
+
+        }
+
+        List<Status> statusList = Arrays.asList(REQUESTED, COMPLETED, CANCEL_REQUESTED, CANCELLED);
+        List<Integer> amountList = Arrays.asList(requestedAmount, completedAmount, cancelRequestedAmount, canceledAmount);
+
+        return new MyReservationStatusResponseForm(authResponse, statusList, amountList);
     }
 }

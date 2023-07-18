@@ -5,6 +5,7 @@ import com.happycamper.backend.member.service.response.AuthResponse;
 import com.happycamper.backend.reservation.controller.form.ReservationRequestForm;
 import com.happycamper.backend.reservation.service.ReservationService;
 import com.happycamper.backend.reservation.service.response.MyReservationResponseForm;
+import com.happycamper.backend.reservation.service.response.MyReservationStatusResponseForm;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,5 +38,12 @@ public class ReservationController {
         AuthResponse authResponse = memberService.authorize(request);
         String email = authResponse.getEmail();
         return reservationService.searchMyReservation(email);
+    }
+
+    @GetMapping("/my-reservations-status")
+    public MyReservationStatusResponseForm getMyReservationStatus(HttpServletRequest request) {
+        AuthResponse authResponse = memberService.authorize(request);
+        String email = authResponse.getEmail();
+        return reservationService.searchMyReservationStatus(email);
     }
 }

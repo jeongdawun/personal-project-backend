@@ -7,6 +7,7 @@ import lombok.Setter;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 public class ProductImage {
     @Id
@@ -16,7 +17,6 @@ public class ProductImage {
     @Getter
     private String imageName;
 
-    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;

@@ -2,10 +2,8 @@ package com.happycamper.backend.product.controller;
 
 import com.happycamper.backend.member.service.MemberService;
 import com.happycamper.backend.member.service.response.AuthResponse;
-import com.happycamper.backend.product.controller.form.CampsiteVacancyByMapRequestForm;
-import com.happycamper.backend.product.controller.form.CheckProductNameDuplicateRequestForm;
-import com.happycamper.backend.product.controller.form.ProductRegisterRequestForm;
-import com.happycamper.backend.product.controller.form.StockRequestForm;
+import com.happycamper.backend.product.controller.form.*;
+import com.happycamper.backend.product.entity.Product;
 import com.happycamper.backend.product.service.ProductService;
 import com.happycamper.backend.product.service.response.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -80,5 +78,14 @@ public class ProductController {
     public List<ProductListResponseForm> productListByCategory(@PathVariable("category") String category) {
         List<ProductListResponseForm> productListByCategory = productService.listByCategory(category);
         return productListByCategory;
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    public Boolean modifyProduct (HttpServletRequest request,
+                                  @PathVariable("id") Long id,
+                                  @RequestBody ProductModifyRequestForm requestForm) {
+        AuthResponse authResponse = memberService.authorize(request);
+        String email = authResponse.getEmail();
+        return productService.modify(email, id, requestForm.toProductRegisterRequest(), requestForm.toProductOptionModifyRequest());
     }
 }

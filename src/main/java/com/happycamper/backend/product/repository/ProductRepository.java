@@ -2,6 +2,7 @@ package com.happycamper.backend.product.repository;
 
 import com.happycamper.backend.member.entity.Member;
 import com.happycamper.backend.product.entity.Product;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,4 +20,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query("SELECT p FROM Product p JOIN FETCH p.member m WHERE p.member = :member")
     Optional<Product> findByMember(Member member);
+
+    @EntityGraph(attributePaths = "member")
+    Optional<Product> findWithMemberById(Long id);
 }

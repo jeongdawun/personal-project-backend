@@ -2,11 +2,10 @@ package com.happycamper.backend.product.service;
 
 import com.happycamper.backend.member.entity.Member;
 import com.happycamper.backend.member.repository.MemberRepository;
-import com.happycamper.backend.product.controller.form.CampsiteVacancyByMapRequestForm;
-import com.happycamper.backend.product.controller.form.CheckProductNameDuplicateRequestForm;
-import com.happycamper.backend.product.controller.form.StockRequestForm;
+import com.happycamper.backend.product.controller.form.*;
 import com.happycamper.backend.product.entity.*;
 import com.happycamper.backend.product.repository.*;
+import com.happycamper.backend.product.service.request.ProductOptionModifyRequest;
 import com.happycamper.backend.product.service.request.ProductOptionRegisterRequest;
 import com.happycamper.backend.product.service.request.ProductRegisterRequest;
 import com.happycamper.backend.product.service.response.*;
@@ -396,5 +395,67 @@ public class ProductServiceImpl implements ProductService {
             }
         }
         return null;
+    }
+
+    @Override
+    public Boolean modify(String email, Long id, ProductRegisterRequest productRegisterRequest, ProductOptionModifyRequest optionModifyRequest) {
+        Optional<Member> maybeMember = memberRepository.findByEmail(email);
+
+        if(maybeMember.isEmpty()) {
+            log.info("존재하지 않는 사용자");
+            return false;
+        }
+        Optional<Product> maybeProduct = productRepository.findWithMemberById(id);
+        if(maybeProduct.isEmpty()){
+            log.info("존재하지 않는 상품");
+            return false;
+        }
+
+        Member member = maybeProduct.get().getMember();
+        if(!member.getId().equals(maybeMember.get().getId())) {
+            log.info("본인이 등록한 상품이 아님");
+            return false;
+        }
+        Product foundProduct = maybeProduct.get();
+        foundProduct.setProductDetails(productRegisterRequest.getProductDetails());
+
+        // 1. 수정으로 들어온 이미지 이름 추출하여 기존 ProductImage에 덮어씌우기
+        List<String> modifyProductImageNameList = productRegisterRequest.getImageNameList();
+
+        List<ProductImage> foundProductImageList = productImageRepository.findAllByProductId(foundProduct.getId());
+
+        for(int i = 0; i < foundProductImageList.size(); i++) {
+            foundProductImageList.get(i).setImageName(modifyProductImageNameList.get(i));
+        }
+
+        // 2. 수정으로 들어온 상품 옵션명, 옵션가격 추출하여 기존 ProductOption에 덮어씌우기
+        List<String> modifyOptionNameList = optionModifyRequest.getOptionNameList();
+        List<Integer> modifyOptionPriceList = optionModifyRequest.getOptionPriceList();
+
+        List<ProductOption> foundProductOptionList = productOptionRepository.findAllByProductId(foundProduct.getId());
+
+        for(int i = 0; i < foundProductOptionList.size(); i++ ){
+            foundProductOptionList.get(i).setOptionName(modifyOptionNameList.get(i));
+            foundProductOptionList.get(i).setOptionPrice(modifyOptionPriceList.get(i));
+        }
+
+        productRepository.save(foundProduct);
+        productImageRepository.saveAll(foundProductImageList);
+        productOptionRepository.saveAll(foundProductOptionList);
+
+        // 3. 수정으로 들어온 상품 옵션별 날짜별 빈자리 개수 추출하여 기존 Options에 덮어씌우기
+        List<List<Options>> modifyOptionsList = optionModifyRequest.getOptionsList();
+
+        for (int i = 0; i < modifyOptionsList.size(); i++) {
+            List<Options> foundOptionsList = optionsRepository.findAllByProductOptionId(foundProductOptionList.get(i).getId());
+
+            for (int j = 0; j < modifyOptionsList.get(i).size(); j++) {
+                foundOptionsList.get(j).setDate(modifyOptionsList.get(i).get(j).getDate());
+                foundOptionsList.get(j).setCampsiteVacancy(modifyOptionsList.get(i).get(j).getCampsiteVacancy());
+            }
+
+            optionsRepository.saveAll(foundOptionsList);
+        }
+        return true;
     }
 }

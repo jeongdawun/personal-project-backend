@@ -4,6 +4,7 @@ import com.happycamper.backend.member.entity.Member;
 import com.happycamper.backend.product.entity.Product;
 import com.happycamper.backend.product.entity.ProductOption;
 import com.happycamper.backend.reservation.entity.Reservation;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -17,4 +18,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     Optional<Product> findProductById(Long id);
     @Query("SELECT r.productOption FROM Reservation r JOIN r.productOption po WHERE r.id = :id")
     Optional<ProductOption> findProductOptionById(Long id);
+    @Transactional
+    void deleteAllByMember(Member member);
 }

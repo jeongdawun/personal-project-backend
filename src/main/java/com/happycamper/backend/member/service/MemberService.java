@@ -28,4 +28,5 @@ public interface MemberService {
     UserProfileResponse getUserProfile(HttpServletRequest request);
     SellerInfoResponse getSellerInfo(HttpServletRequest request);
     void logout(HttpServletRequest request, HttpServletResponse response);
+    Boolean withdraw(HttpServletRequest request, HttpServletResponse response, String password);
 }

@@ -17,6 +17,12 @@ import com.happycamper.backend.member.service.request.UserProfileRegisterRequest
 import com.happycamper.backend.member.service.response.AuthResponse;
 import com.happycamper.backend.member.service.response.SellerInfoResponse;
 import com.happycamper.backend.member.service.response.UserProfileResponse;
+import com.happycamper.backend.reservation.entity.Reservation;
+import com.happycamper.backend.reservation.entity.ReservationStatus;
+import com.happycamper.backend.reservation.entity.Status;
+import com.happycamper.backend.reservation.repository.ReservationRepository;
+import com.happycamper.backend.reservation.repository.ReservationStatusRepository;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,7 +32,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+
+import static com.happycamper.backend.reservation.entity.Status.COMPLETED;
+import static com.happycamper.backend.reservation.entity.Status.REQUESTED;
 
 @Slf4j
 @Service
@@ -38,6 +50,8 @@ public class MemberServiceImpl implements MemberService{
     final private UserProfileRepository userProfileRepository;
     final private SellerInfoRepository sellerInfoRepository;
     final private RoleRepository roleRepository;
+    final private ReservationRepository reservationRepository;
+    final private ReservationStatusRepository reservationStatusRepository;
     final private EmailService emailService;
     final private JwtUtil jwtUtil;
     final private RedisService redisService;
@@ -397,5 +411,81 @@ public class MemberServiceImpl implements MemberService{
                 }
             }
         }
+    }
+
+    @Override
+    public Boolean withdraw(HttpServletRequest request, HttpServletResponse response, String password) {
+        Cookie[] cookies = request.getCookies();
+        String accessToken = null;
+        String refreshToken = null;
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("AccessToken")) {
+
+                    accessToken = cookie.getValue();
+                    System.out.println("삭제를 위해 클라이언트에서 가져온 accessToken: " + accessToken);
+                }
+                if (cookie.getName().equals("RefreshToken")) {
+                    refreshToken = cookie.getValue();
+                    System.out.println("삭제를 위해 클라이언트에서 가져온 refreshToken: " + refreshToken);
+                }
+            }
+            Claims claimsByAccessToken = jwtUtil.parseJwtToken(accessToken, secretKey);
+            Claims claimsByRefreshToken = jwtUtil.parseJwtToken(refreshToken, secretKey);
+            if(!claimsByAccessToken.getSubject().equals(claimsByRefreshToken.getSubject())) {
+                log.info("두 토큰의 이메일이 맞지 않음");
+                return false;
+            }
+            String email = claimsByAccessToken.getSubject();
+
+            Optional<Member> maybeMember = memberRepository.findByEmail(email);
+            if(maybeMember.isEmpty()) {
+                log.info("회원 찾을 수 없음");
+                return false;
+            }
+
+            Member member = maybeMember.get();
+            if(passwordEncoder.matches(passwordEncoder.encode(password), member.getPassword())) {
+                log.info("비밀번호 틀림");
+                return false;
+            }
+
+            List<Reservation> reservationList = reservationRepository.findAllByMember(member);
+
+            for(Reservation reservation: reservationList) {
+                if(reservation.getCheckInDate().isAfter(LocalDate.now()) || reservation.getCheckInDate().isAfter(LocalDate.now())){
+                    log.info("이용 전 예약 존재");
+                    return false;
+                }
+            }
+
+            for(Reservation reservation: reservationList) {
+                if(reservation.getCheckOutDate().equals(LocalDate.now()) || reservation.getCheckOutDate().isBefore(LocalDate.now())){
+                    ReservationStatus reservationStatus = reservationStatusRepository.findByReservation(reservation);
+                    reservationStatus.setStatus(COMPLETED);
+                    reservationStatusRepository.save(reservationStatus);
+                }
+            }
+
+            List<ReservationStatus> reservationStatuses = new ArrayList<>();
+            for(Reservation reservation: reservationList) {
+                ReservationStatus reservationStatus = reservationStatusRepository.findByReservation(reservation);
+                reservationStatuses.add(reservationStatus);
+                if(reservationStatus.getStatus() == REQUESTED) {
+                    log.info("이용 전 예약 존재");
+                    return false;
+                }
+            }
+
+            reservationStatusRepository.deleteByReservationIn(reservationList);
+            reservationRepository.deleteAllByMember(member);
+            userProfileRepository.deleteByMemberId(member.getId());
+            memberRoleRepository.deleteByMemberId(member.getId());
+            memberRepository.delete(member);
+
+            return true;
+        }
+        return false;
     }
 }

@@ -13,6 +13,7 @@ public class ReservationStatus {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     private Status status;
 

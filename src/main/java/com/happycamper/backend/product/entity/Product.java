@@ -23,7 +23,7 @@ public class Product {
     private String productDetails;
     private String address;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     @Setter
     private Member member;

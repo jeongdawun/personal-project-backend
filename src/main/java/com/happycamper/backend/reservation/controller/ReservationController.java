@@ -4,10 +4,13 @@ import com.happycamper.backend.member.service.MemberService;
 import com.happycamper.backend.member.service.response.AuthResponse;
 import com.happycamper.backend.reservation.controller.form.ReservationRequestForm;
 import com.happycamper.backend.reservation.service.ReservationService;
+import com.happycamper.backend.reservation.service.response.MyReservationResponseForm;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -27,5 +30,12 @@ public class ReservationController {
         }
         Boolean isCompleteReservation = reservationService.register(email, requestForm);
         return isCompleteReservation;
+    }
+
+    @GetMapping("/my-reservations")
+    public List<MyReservationResponseForm> getMyReservations(HttpServletRequest request) {
+        AuthResponse authResponse = memberService.authorize(request);
+        String email = authResponse.getEmail();
+        return reservationService.searchMyReservation(email);
     }
 }

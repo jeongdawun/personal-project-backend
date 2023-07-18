@@ -13,6 +13,7 @@ import com.happycamper.backend.reservation.entity.Reservation;
 import com.happycamper.backend.reservation.entity.ReservationStatus;
 import com.happycamper.backend.reservation.repository.ReservationRepository;
 import com.happycamper.backend.reservation.repository.ReservationStatusRepository;
+import com.happycamper.backend.reservation.service.response.MyReservationResponseForm;
 import com.happycamper.backend.utility.transform.TransformToDate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -121,5 +122,57 @@ public class ReservationServiceImpl implements ReservationService {
         reservationStatusRepository.save(reservationStatus);
 
         return true;
+    }
+
+    @Override
+    public List<MyReservationResponseForm> searchMyReservation(String email) {
+        // 사용자의 토큰으로 사용자 특정하기
+        Optional<Member> maybeMember = memberRepository.findByEmail(email);
+        if(maybeMember.isEmpty()) {
+            log.info("사용자 확인 불가");
+            return null;
+        }
+        Member member = maybeMember.get();
+
+        List<MyReservationResponseForm> responseFormList = new ArrayList<>();
+
+        // 해당 사용자의 예약 리스트 가져오기
+        List<Reservation> reservationList = reservationRepository.findAllByMember(member);
+
+        // 예약 리스트를 순회하면서
+        for(Reservation reservation : reservationList) {
+
+            // 예약한 상품을 가져오고
+            Optional<Product> maybeProduct = reservationRepository.findProductById(reservation.getId());
+
+            if(maybeProduct.isEmpty()) {
+                return null;
+            }
+            Product product = maybeProduct.get();
+
+            Optional<ProductOption> maybeProductOption = reservationRepository.findProductOptionById(reservation.getId());
+
+            if(maybeProductOption.isEmpty()) {
+                return null;
+            }
+            ProductOption productOption = maybeProductOption.get();
+
+            // 예약한 상품의 상태를 가져오고
+            ReservationStatus reservationStatus = reservationStatusRepository.findByReservation(reservation);
+
+            // 반환할 양식에 넣는다.
+            MyReservationResponseForm responseForm =
+                    new MyReservationResponseForm(
+                            product.getId(),
+                            product.getProductName(),
+                            productOption.getOptionName(),
+                            reservation.getPayment(),
+                            reservation.getCheckInDate(),
+                            reservation.getCheckOutDate(),
+                            reservationStatus.getStatus()
+                    );
+            responseFormList.add(responseForm);
+        }
+        return responseFormList;
     }
 }

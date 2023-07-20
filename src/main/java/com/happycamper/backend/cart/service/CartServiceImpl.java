@@ -129,4 +129,36 @@ public class CartServiceImpl implements CartService {
 
         return null;
     }
+
+    @Override
+    public Boolean delete(String email, Long id) {
+
+        // 사용자의 토큰으로 사용자 특정하기
+        Optional<Member> maybeMember = memberRepository.findByEmail(email);
+        if(maybeMember.isEmpty()) {
+            log.info("사용자 확인 불가");
+            return null;
+        }
+        Member member = maybeMember.get();
+        Optional<Cart> maybeCart = cartRepository.findByMember(member);
+        if(maybeCart.isEmpty()) {
+            log.info("카트가 없습니다.");
+            return false;
+        }
+
+        Cart cart = maybeCart.get();
+
+        List<CartItem> maybeCartItemList = cartItemRepository.findAllByCart(cart);
+
+        for(CartItem cartItem: maybeCartItemList) {
+            if(cartItem.getId().equals(id)) {
+                cartItemRepository.deleteById(id);
+                cart.setCount(cart.getCount() - 1);
+            }
+        }
+        log.info("장바구니에서 상품 삭제 완료!");
+        cartRepository.save(cart);
+
+        return true;
+    }
 }

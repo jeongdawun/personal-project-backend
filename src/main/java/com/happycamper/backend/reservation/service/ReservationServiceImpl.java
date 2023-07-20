@@ -172,6 +172,7 @@ public class ReservationServiceImpl implements ReservationService {
             // 반환할 양식에 넣는다.
             MyReservationResponseForm responseForm =
                     new MyReservationResponseForm(
+                            reservation.getId(),
                             product.getId(),
                             product.getProductName(),
                             productOption.getOptionName(),

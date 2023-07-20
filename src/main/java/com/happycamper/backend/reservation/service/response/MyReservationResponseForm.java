@@ -9,6 +9,7 @@ import java.time.LocalDate;
 @Getter
 @RequiredArgsConstructor
 public class MyReservationResponseForm {
+    final private Long id;
     final private Long productId;
     final private String productName;
     final private String optionName;

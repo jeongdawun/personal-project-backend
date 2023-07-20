@@ -161,4 +161,39 @@ public class CartServiceImpl implements CartService {
 
         return true;
     }
+
+    @Override
+    public List<CartItemListResponseForm> getMyCart(String email) {
+        // 사용자의 토큰으로 사용자 특정하기
+        Optional<Member> maybeMember = memberRepository.findByEmail(email);
+        if(maybeMember.isEmpty()) {
+            log.info("사용자 확인 불가");
+            return null;
+        }
+        Member member = maybeMember.get();
+
+        Optional<Cart> maybeCart = cartRepository.findByMember(member);
+        if(maybeCart.isEmpty()) {
+            log.info("카트가 없습니다.");
+            return null;
+        }
+
+        Cart cart = maybeCart.get();
+        List<CartItem> cartItemList = cartItemRepository.findAllByCart(cart);
+        List<CartItemListResponseForm> responseFormList = new ArrayList<>();
+
+        for(CartItem cartItem: cartItemList) {
+            CartItemListResponseForm responseForm = new CartItemListResponseForm(
+                    cartItem.getId(),
+                    cartItem.getProduct().getId(),
+                    cartItem.getProduct().getProductName(),
+                    cartItem.getProductOption().getOptionName(),
+                    cartItem.getPayment(),
+                    cartItem.getCheckInDate(),
+                    cartItem.getCheckOutDate()
+            );
+            responseFormList.add(responseForm);
+        }
+        return responseFormList;
+    }
 }

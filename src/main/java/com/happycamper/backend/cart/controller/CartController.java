@@ -40,4 +40,12 @@ public class CartController {
 
         return cartService.delete(email, id);
     }
+
+    @GetMapping("/myCart")
+    public List<CartItemListResponseForm> getCartItem(HttpServletRequest request) {
+        AuthResponse authResponse = memberService.authorize(request);
+        String email = authResponse.getEmail();
+
+        return cartService.getMyCart(email);
+    }
 }

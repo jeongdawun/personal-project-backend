@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface CartService {
     List<CartItemListResponseForm> add(String email, AddCartItemRequestForm requestForm);
-    Boolean delete(String email, Long id);
+    List<CartItemListResponseForm> delete(String email, Long id);
     List<CartItemListResponseForm> getMyCart(String email);
+    List<CartItemListResponseForm> deleteList(String email, List<Long> idList);
 }

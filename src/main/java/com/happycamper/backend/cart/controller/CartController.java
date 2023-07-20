@@ -34,11 +34,19 @@ public class CartController {
     }
 
     @DeleteMapping("/{id}")
-    public Boolean deleteCartItem(HttpServletRequest request, @PathVariable("id") Long id) {
+    public List<CartItemListResponseForm> deleteCartItem(HttpServletRequest request, @PathVariable("id") Long id) {
         AuthResponse authResponse = memberService.authorize(request);
         String email = authResponse.getEmail();
 
         return cartService.delete(email, id);
+    }
+
+    @DeleteMapping
+    public List<CartItemListResponseForm> deleteCartItemList(HttpServletRequest request, @RequestParam("idList") List<Long> idList) {
+        AuthResponse authResponse = memberService.authorize(request);
+        String email = authResponse.getEmail();
+
+        return cartService.deleteList(email, idList);
     }
 
     @GetMapping("/myCart")

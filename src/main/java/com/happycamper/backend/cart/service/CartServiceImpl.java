@@ -133,7 +133,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public Boolean delete(String email, Long id) {
+    public List<CartItemListResponseForm> delete(String email, Long id) {
 
         // 사용자의 토큰으로 사용자 특정하기
         Optional<Member> maybeMember = memberRepository.findByEmail(email);
@@ -145,7 +145,7 @@ public class CartServiceImpl implements CartService {
         Optional<Cart> maybeCart = cartRepository.findByMember(member);
         if(maybeCart.isEmpty()) {
             log.info("카트가 없습니다.");
-            return false;
+            return null;
         }
 
         Cart cart = maybeCart.get();
@@ -161,7 +161,23 @@ public class CartServiceImpl implements CartService {
         log.info("장바구니에서 상품 삭제 완료!");
         cartRepository.save(cart);
 
-        return true;
+        List<CartItem> cartItemList = cartItemRepository.findAllByCart(cart);
+        List<CartItemListResponseForm> responseFormList = new ArrayList<>();
+
+        for(CartItem cartItem: cartItemList) {
+            CartItemListResponseForm responseForm = new CartItemListResponseForm(
+                    cartItem.getId(),
+                    cartItem.getProduct().getId(),
+                    cartItem.getProduct().getProductName(),
+                    cartItem.getProductOption().getId(),
+                    cartItem.getProductOption().getOptionName(),
+                    cartItem.getPayment(),
+                    cartItem.getCheckInDate(),
+                    cartItem.getCheckOutDate()
+            );
+            responseFormList.add(responseForm);
+        }
+        return responseFormList;
     }
 
     @Override
@@ -181,6 +197,55 @@ public class CartServiceImpl implements CartService {
         }
 
         Cart cart = maybeCart.get();
+        List<CartItem> cartItemList = cartItemRepository.findAllByCart(cart);
+        List<CartItemListResponseForm> responseFormList = new ArrayList<>();
+
+        for(CartItem cartItem: cartItemList) {
+            CartItemListResponseForm responseForm = new CartItemListResponseForm(
+                    cartItem.getId(),
+                    cartItem.getProduct().getId(),
+                    cartItem.getProduct().getProductName(),
+                    cartItem.getProductOption().getId(),
+                    cartItem.getProductOption().getOptionName(),
+                    cartItem.getPayment(),
+                    cartItem.getCheckInDate(),
+                    cartItem.getCheckOutDate()
+            );
+            responseFormList.add(responseForm);
+        }
+        return responseFormList;
+    }
+
+    @Override
+    public List<CartItemListResponseForm> deleteList(String email, List<Long> idList) {
+        // 사용자의 토큰으로 사용자 특정하기
+        Optional<Member> maybeMember = memberRepository.findByEmail(email);
+        if(maybeMember.isEmpty()) {
+            log.info("사용자 확인 불가");
+            return null;
+        }
+        Member member = maybeMember.get();
+        Optional<Cart> maybeCart = cartRepository.findByMember(member);
+        if(maybeCart.isEmpty()) {
+            log.info("카트가 없습니다.");
+            return null;
+        }
+
+        Cart cart = maybeCart.get();
+
+        List<CartItem> maybeCartItemList = cartItemRepository.findAllByCart(cart);
+
+        for(CartItem cartItem: maybeCartItemList) {
+            for(int i = 0; i < idList.size(); i++ ){
+                if(cartItem.getId().equals(idList.get(i))) {
+                    cartItemRepository.deleteById(idList.get(i));
+                    cart.setCount(cart.getCount() - 1);
+                }
+            }
+        }
+        log.info("장바구니에서 상품 삭제 완료!");
+        cartRepository.save(cart);
+
         List<CartItem> cartItemList = cartItemRepository.findAllByCart(cart);
         List<CartItemListResponseForm> responseFormList = new ArrayList<>();
 

@@ -30,6 +30,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.happycamper.backend.member.entity.RoleType.BUSINESS;
+import static com.happycamper.backend.member.entity.RoleType.NORMAL;
 import static com.happycamper.backend.reservation.entity.Status.*;
 
 @Slf4j
@@ -200,45 +202,100 @@ public class ReservationServiceImpl implements ReservationService {
         }
         AuthResponse authResponse = new AuthResponse(email, maybeMemberRole.get().getRole().getRoleType().toString());
 
-        // 해당 사용자의 예약 리스트 가져오기
-        List<Reservation> reservationList = reservationRepository.findAllByMember(member);
+        if(maybeMemberRole.get().getRole().getRoleType().equals(NORMAL)) {
 
-        int requestedAmount = 0;
-        int completedAmount = 0;
-        int cancelRequestedAmount = 0;
-        int canceledAmount = 0;
+            // 해당 사용자의 예약 리스트 가져오기
+            List<Reservation> reservationList = reservationRepository.findAllByMember(member);
 
-        // 예약 리스트를 순회하면서 상태 업데이트하기(일단 예약 신청, 이용 완료로만 구분)
-        for(Reservation reservation: reservationList) {
-            if(reservation.getCheckOutDate().equals(LocalDate.now()) || reservation.getCheckOutDate().isBefore(LocalDate.now())){
+            int requestedAmount = 0;
+            int completedAmount = 0;
+            int cancelRequestedAmount = 0;
+            int canceledAmount = 0;
+
+            // 예약 리스트를 순회하면서 상태 업데이트하기(일단 예약 신청, 이용 완료로만 구분)
+            for(Reservation reservation: reservationList) {
+                if(reservation.getCheckOutDate().equals(LocalDate.now()) || reservation.getCheckOutDate().isBefore(LocalDate.now())){
+                    ReservationStatus reservationStatus = reservationStatusRepository.findByReservation(reservation);
+                    reservationStatus.setStatus(COMPLETED);
+                    reservationStatusRepository.save(reservationStatus);
+                }
+
                 ReservationStatus reservationStatus = reservationStatusRepository.findByReservation(reservation);
-                reservationStatus.setStatus(COMPLETED);
-                reservationStatusRepository.save(reservationStatus);
+                switch (reservationStatus.getStatus()) {
+                    case REQUESTED:
+                        requestedAmount++;
+                        break;
+                    case COMPLETED:
+                        completedAmount++;
+                        break;
+                    case CANCEL_REQUESTED:
+                        cancelRequestedAmount++;
+                        break;
+                    case CANCELLED:
+                        canceledAmount++;
+                        break;
+                    default:
+                        break;
+                }
+
             }
 
-            ReservationStatus reservationStatus = reservationStatusRepository.findByReservation(reservation);
-            switch (reservationStatus.getStatus()) {
-                case REQUESTED:
-                    requestedAmount++;
-                    break;
-                case COMPLETED:
-                    completedAmount++;
-                    break;
-                case CANCEL_REQUESTED:
-                    cancelRequestedAmount++;
-                    break;
-                case CANCELLED:
-                    canceledAmount++;
-                    break;
-                default:
-                    break;
-            }
+            List<Status> statusList = Arrays.asList(REQUESTED, COMPLETED, CANCEL_REQUESTED, CANCELLED);
+            List<Integer> amountList = Arrays.asList(requestedAmount, completedAmount, cancelRequestedAmount, canceledAmount);
 
+            return new MyReservationStatusResponseForm(authResponse, statusList, amountList);
         }
 
-        List<Status> statusList = Arrays.asList(REQUESTED, COMPLETED, CANCEL_REQUESTED, CANCELLED);
-        List<Integer> amountList = Arrays.asList(requestedAmount, completedAmount, cancelRequestedAmount, canceledAmount);
+        if(maybeMemberRole.get().getRole().getRoleType().equals(BUSINESS)) {
 
-        return new MyReservationStatusResponseForm(authResponse, statusList, amountList);
+            Optional<Product> maybeProduct = productRepository.findByMember(member);
+
+            if(maybeProduct.isEmpty()) {
+                return null;
+            }
+            Product product = maybeProduct.get();
+
+            // 해당 사용자의 예약 리스트 가져오기
+            List<Reservation> reservationList = reservationRepository.findAllByProduct(product);
+
+            int requestedAmount = 0;
+            int completedAmount = 0;
+            int cancelRequestedAmount = 0;
+            int canceledAmount = 0;
+
+            // 예약 리스트를 순회하면서 상태 업데이트하기(일단 예약 신청, 이용 완료로만 구분)
+            for(Reservation reservation: reservationList) {
+                if(reservation.getCheckOutDate().equals(LocalDate.now()) || reservation.getCheckOutDate().isBefore(LocalDate.now())){
+                    ReservationStatus reservationStatus = reservationStatusRepository.findByReservation(reservation);
+                    reservationStatus.setStatus(COMPLETED);
+                    reservationStatusRepository.save(reservationStatus);
+                }
+
+                ReservationStatus reservationStatus = reservationStatusRepository.findByReservation(reservation);
+                switch (reservationStatus.getStatus()) {
+                    case REQUESTED:
+                        requestedAmount++;
+                        break;
+                    case COMPLETED:
+                        completedAmount++;
+                        break;
+                    case CANCEL_REQUESTED:
+                        cancelRequestedAmount++;
+                        break;
+                    case CANCELLED:
+                        canceledAmount++;
+                        break;
+                    default:
+                        break;
+                }
+
+            }
+
+            List<Status> statusList = Arrays.asList(REQUESTED, COMPLETED, CANCEL_REQUESTED, CANCELLED);
+            List<Integer> amountList = Arrays.asList(requestedAmount, completedAmount, cancelRequestedAmount, canceledAmount);
+
+            return new MyReservationStatusResponseForm(authResponse, statusList, amountList);
+        }
+        return null;
     }
 }

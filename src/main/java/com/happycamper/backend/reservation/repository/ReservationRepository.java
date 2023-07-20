@@ -14,10 +14,16 @@ import java.util.Optional;
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
     @Query("SELECT r FROM Reservation r JOIN FETCH r.member m WHERE r.member = :member")
     List<Reservation> findAllByMember(Member member);
+
+    @Query("SELECT r FROM Reservation r JOIN FETCH r.product p WHERE r.product = :product")
+    List<Reservation> findAllByProduct(Product product);
+
     @Query("SELECT r.product FROM Reservation r JOIN r.product p WHERE r.id = :id")
     Optional<Product> findProductById(Long id);
+
     @Query("SELECT r.productOption FROM Reservation r JOIN r.productOption po WHERE r.id = :id")
     Optional<ProductOption> findProductOptionById(Long id);
+
     @Transactional
     void deleteAllByMember(Member member);
 }

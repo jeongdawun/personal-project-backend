@@ -11,6 +11,7 @@ public class CartItemListResponseForm {
     final private Long id;
     final private Long productId;
     final private String productName;
+    final private Long optionId;
     final private String optionName;
     final private Integer payment;
     final private LocalDate checkInDate;

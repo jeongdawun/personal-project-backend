@@ -23,4 +23,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @EntityGraph(attributePaths = "member")
     Optional<Product> findWithMemberById(Long id);
+
+    List<Product> findAllByProductNameContaining(String keyword);
 }

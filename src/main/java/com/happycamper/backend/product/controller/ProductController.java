@@ -3,7 +3,6 @@ package com.happycamper.backend.product.controller;
 import com.happycamper.backend.member.service.MemberService;
 import com.happycamper.backend.member.service.response.AuthResponse;
 import com.happycamper.backend.product.controller.form.*;
-import com.happycamper.backend.product.entity.Product;
 import com.happycamper.backend.product.service.ProductService;
 import com.happycamper.backend.product.service.response.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -87,5 +86,12 @@ public class ProductController {
         AuthResponse authResponse = memberService.authorize(request);
         String email = authResponse.getEmail();
         return productService.modify(email, id, requestForm.toProductRegisterRequest(), requestForm.toProductOptionModifyRequest());
+    }
+
+    @GetMapping("/search/{keyword}")
+    public List<ProductListResponseForm> productListByKeyword(@PathVariable("keyword") String keyword) {
+        log.info("하냐? " + keyword);
+        List<ProductListResponseForm> productListByKeyword = productService.listByKeyword(keyword);
+        return productListByKeyword;
     }
 }

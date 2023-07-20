@@ -21,4 +21,5 @@ public interface ProductService {
     List<CampsiteVacancyByMapResponseForm> checkVacancyByDate(CampsiteVacancyByMapRequestForm requestForm);
     MyProductListResponseForm myList(String email);
     Boolean modify(String email, Long id, ProductRegisterRequest productRegisterRequest, ProductOptionModifyRequest optionModifyRequest);
+    List<ProductListResponseForm> listByKeyword(String keyword);
 }

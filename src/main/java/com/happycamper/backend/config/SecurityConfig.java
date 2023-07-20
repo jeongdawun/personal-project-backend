@@ -28,7 +28,7 @@ public class SecurityConfig {
     private final String[] permitUrl = { "/", "/member/signup-normal", "/member/signup-business", "/member/login",
                             "/member/check-nickName-duplicate", "/member/check-businessNumber-duplicate", "/member/check-email-duplicate",
                             "/member/check-email-authorize", "/product/list", "/product/**", "/product/check-stock", "/product/category/**",
-                            "/product/map-vacancy"};
+                            "/product/map-vacancy", "/product/search/**"};
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {

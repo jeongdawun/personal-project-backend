@@ -458,4 +458,35 @@ public class ProductServiceImpl implements ProductService {
         }
         return true;
     }
+
+    @Override
+    public List<ProductListResponseForm> listByKeyword(String keyword) {
+        List<Product> productList = productRepository.findAllByProductNameContaining(keyword);
+
+        List<ProductListResponseForm> responseFormList = new ArrayList<>();
+
+        for(Product product : productList) {
+            List<ProductOption> productOptionList = productOptionRepository.findAllByProductId(product.getId());
+
+            List<Integer> optionPriceList = new ArrayList<>();
+
+            for(ProductOption productOption: productOptionList) {
+                optionPriceList.add(productOption.getOptionPrice());
+            }
+            int minPrice = NumberUtils.findMinValue(optionPriceList);
+
+            Optional<ProductMainImage> productMainImage = productMainImageRepository.findById(product.getId());
+
+            if(productMainImage.isPresent()) {
+                ProductListResponseForm responseForm = new ProductListResponseForm(
+                        product.getId(),
+                        product.getProductName(),
+                        product.getCategory(),
+                        productMainImage.get().getMainImageName(),
+                        minPrice);
+                responseFormList.add(responseForm);
+            }
+        }
+        return responseFormList;
+    }
 }

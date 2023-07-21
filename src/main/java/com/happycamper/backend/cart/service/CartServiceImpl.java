@@ -6,6 +6,7 @@ import com.happycamper.backend.cart.entity.CartItem;
 import com.happycamper.backend.cart.repository.CartItemRepository;
 import com.happycamper.backend.cart.repository.CartRepository;
 import com.happycamper.backend.cart.service.response.CartItemListResponseForm;
+import com.happycamper.backend.cart.service.response.CompareCartItemListResponseForm;
 import com.happycamper.backend.member.entity.Member;
 import com.happycamper.backend.member.repository.MemberRepository;
 import com.happycamper.backend.product.entity.Product;
@@ -261,6 +262,49 @@ public class CartServiceImpl implements CartService {
                     cartItem.getCheckOutDate()
             );
             responseFormList.add(responseForm);
+        }
+        return responseFormList;
+    }
+
+    @Override
+    public List<CompareCartItemListResponseForm> getMyCartItemsForCompare(String email, List<Long> idList) {
+        // 사용자의 토큰으로 사용자 특정하기
+        Optional<Member> maybeMember = memberRepository.findByEmail(email);
+        if(maybeMember.isEmpty()) {
+            log.info("사용자 확인 불가");
+            return null;
+        }
+        Member member = maybeMember.get();
+        Optional<Cart> maybeCart = cartRepository.findByMember(member);
+        if(maybeCart.isEmpty()) {
+            log.info("카트가 없습니다.");
+            return null;
+        }
+
+        Cart cart = maybeCart.get();
+
+        List<CartItem> cartItemList = cartItemRepository.findAllByCart(cart);
+
+        List<CompareCartItemListResponseForm> responseFormList = new ArrayList<>();
+        for(CartItem cartItem: cartItemList) {
+            for(int i = 0; i < idList.size(); i++){
+                if(cartItem.getId().equals(idList.get(i))) {
+                    CompareCartItemListResponseForm responseForm =
+                            new CompareCartItemListResponseForm(
+                                    cartItem.getId(),
+                                    cartItem.getProduct().getId(),
+                                    cartItem.getProduct().getProductName(),
+                                    cartItem.getProduct().getCategory(),
+                                    cartItem.getProductOption().getId(),
+                                    cartItem.getProductOption().getOptionName(),
+                                    cartItem.getProduct().getAddress(),
+                                    cartItem.getPayment(),
+                                    cartItem.getCheckInDate(),
+                                    cartItem.getCheckOutDate()
+                            );
+                    responseFormList.add(responseForm);
+                }
+            }
         }
         return responseFormList;
     }

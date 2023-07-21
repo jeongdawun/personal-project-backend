@@ -3,6 +3,7 @@ package com.happycamper.backend.cart.controller;
 import com.happycamper.backend.cart.controller.form.AddCartItemRequestForm;
 import com.happycamper.backend.cart.service.CartService;
 import com.happycamper.backend.cart.service.response.CartItemListResponseForm;
+import com.happycamper.backend.cart.service.response.CompareCartItemListResponseForm;
 import com.happycamper.backend.member.service.MemberService;
 import com.happycamper.backend.member.service.response.AuthResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -55,5 +56,13 @@ public class CartController {
         String email = authResponse.getEmail();
 
         return cartService.getMyCart(email);
+    }
+
+    @PostMapping("/compare-cartItems")
+    public List<CompareCartItemListResponseForm> getCartItemsForCompare(HttpServletRequest request, @RequestBody List<Long> idList) {
+        AuthResponse authResponse = memberService.authorize(request);
+        String email = authResponse.getEmail();
+
+        return cartService.getMyCartItemsForCompare(email, idList);
     }
 }

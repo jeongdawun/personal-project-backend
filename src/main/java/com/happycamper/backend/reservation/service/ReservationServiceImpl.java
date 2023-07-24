@@ -5,6 +5,8 @@ import com.happycamper.backend.member.entity.MemberRole;
 import com.happycamper.backend.member.repository.MemberRepository;
 import com.happycamper.backend.member.repository.MemberRoleRepository;
 import com.happycamper.backend.member.service.response.AuthResponse;
+import com.happycamper.backend.payment.service.PaymentService;
+import com.happycamper.backend.payment.service.reponse.KakaoReadyResponse;
 import com.happycamper.backend.product.entity.Options;
 import com.happycamper.backend.product.entity.Product;
 import com.happycamper.backend.product.entity.ProductOption;
@@ -23,12 +25,11 @@ import com.happycamper.backend.utility.transform.TransformToDate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.text.DecimalFormat;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.happycamper.backend.member.entity.RoleType.BUSINESS;
 import static com.happycamper.backend.member.entity.RoleType.NORMAL;
@@ -37,6 +38,7 @@ import static com.happycamper.backend.reservation.entity.Status.*;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ReservationServiceImpl implements ReservationService {
     final private ReservationRepository reservationRepository;
     final private ReservationStatusRepository reservationStatusRepository;
@@ -45,15 +47,16 @@ public class ReservationServiceImpl implements ReservationService {
     final private OptionsRepository optionsRepository;
     final private MemberRepository memberRepository;
     final private MemberRoleRepository memberRoleRepository;
+    final private PaymentService paymentService;
 
     @Override
-    public Boolean register(String email, ReservationRequestForm requestForm) {
+    public KakaoReadyResponse register(String email, ReservationRequestForm requestForm) {
 
         // 사용자의 토큰으로 사용자 특정하기
         Optional<Member> maybeMember = memberRepository.findByEmail(email);
         if(maybeMember.isEmpty()) {
             log.info("사용자 확인 불가");
-            return false;
+            return null;
         }
         Member member = maybeMember.get();
 
@@ -69,7 +72,7 @@ public class ReservationServiceImpl implements ReservationService {
 
         if(maybeProduct.isEmpty()) {
             log.info("상품 확인 불가");
-            return false;
+            return null;
         }
         Product product = maybeProduct.get();
 
@@ -80,7 +83,7 @@ public class ReservationServiceImpl implements ReservationService {
 
         if(maybeProductOption.isEmpty()) {
             log.info("상품 옵션 확인 불가");
-            return false;
+            return null;
         }
         ProductOption productOption = maybeProductOption.get();
 
@@ -96,7 +99,7 @@ public class ReservationServiceImpl implements ReservationService {
                 // 빈자리가 0개인 경우 false
                 if(options.getCampsiteVacancy() < 1) {
                     log.info("재고 없음");
-                    return false;
+                    return null;
                 }
                 int campsiteVacancy = options.getCampsiteVacancy();
 
@@ -130,7 +133,26 @@ public class ReservationServiceImpl implements ReservationService {
         reservationStatus.setReservation(reservation);
         reservationStatusRepository.save(reservationStatus);
 
-        return true;
+        double vatAmount = payment * 0.1;
+
+        DecimalFormat decimalFormat = new DecimalFormat("#");
+
+        String vatAmountString = decimalFormat.format(vatAmount);
+
+        System.out.println("VAT Amount: " + vatAmountString);
+
+        UUID orderId = UUID.randomUUID();
+        String partner_order_id = orderId.toString();
+
+        KakaoReadyResponse response = paymentService.kakaoPayReady(
+                partner_order_id,
+                member.getId().toString(),
+                product.getProductName(),
+                Integer.toString(requestForm.getAmount()),
+                Integer.toString(payment),
+                vatAmountString);
+
+        return response;
     }
 
     @Override

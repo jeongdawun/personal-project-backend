@@ -44,8 +44,8 @@ public class MemberController {
     }
 
     @PostMapping("/check-email-authorize")
-    public String checkEmailAuthorize(@RequestBody CheckEmailAuthorizationRequestForm requestForm) {
-        String authCode = memberService.checkEmailAuthorize(requestForm);
+    public Integer checkEmailAuthorize(@RequestBody CheckEmailAuthorizationRequestForm requestForm) {
+        Integer authCode = memberService.checkEmailAuthorize(requestForm);
 
         return authCode;
     }

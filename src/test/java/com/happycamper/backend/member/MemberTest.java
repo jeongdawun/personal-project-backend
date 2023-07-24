@@ -71,7 +71,7 @@ public class MemberTest {
         final String userEmail = "jeongdawun33@gmail.com";
 
         CheckEmailAuthorizationRequestForm requestForm = new CheckEmailAuthorizationRequestForm(userEmail);
-        String authCode = memberService.checkEmailAuthorize(requestForm);
+        Integer authCode = memberService.checkEmailAuthorize(requestForm);
 
         assertTrue(authCode != null);
     }

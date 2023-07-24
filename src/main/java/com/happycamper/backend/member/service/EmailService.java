@@ -34,9 +34,9 @@ public class EmailService {
     }
 
     // 이메일 생성
-    public Email createEmail(String userEmail) {
+    public Email createEmail(String userEmail, int randomCode) {
         String title = "Happy Camper 인증 코드";
-        String content = String.valueOf(CustomRandom.generateNumber(0000, 9999));
+        String content = String.valueOf(randomCode);
 
         Email email = new Email(userEmail, title, content);
 

@@ -22,6 +22,7 @@ import com.happycamper.backend.reservation.entity.ReservationStatus;
 import com.happycamper.backend.reservation.entity.Status;
 import com.happycamper.backend.reservation.repository.ReservationRepository;
 import com.happycamper.backend.reservation.repository.ReservationStatusRepository;
+import com.happycamper.backend.utility.random.CustomRandom;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -168,10 +169,11 @@ public class MemberServiceImpl implements MemberService{
 
     // 이메일 사용 가능 여부 확인
     @Override
-    public String checkEmailAuthorize(CheckEmailAuthorizationRequestForm requestForm) {
-        Email email = emailService.createEmail(requestForm.getEmail());
-        String authCode = emailService.sendEmail(email);
-        return authCode;
+    public Integer checkEmailAuthorize(CheckEmailAuthorizationRequestForm requestForm) {
+        int randomCode = CustomRandom.generateNumber(0000, 9999);
+        Email email = emailService.createEmail(requestForm.getEmail(), randomCode);
+        emailService.sendEmail(email);
+        return randomCode;
     }
 
     // 일반 회원의 회원 프로필 생성

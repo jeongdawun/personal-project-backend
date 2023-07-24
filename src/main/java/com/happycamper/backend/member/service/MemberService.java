@@ -20,7 +20,7 @@ public interface MemberService {
     Boolean checkBusinessNumberDuplicate(CheckBusinessNumberDuplicateRequestForm requestForm);
     Boolean checkNickNameDuplicate(CheckNickNameDuplicateRequestForm requestForm);
     Boolean businessMemberRegister(BusinessMemberRegisterForm requestForm);
-    String checkEmailAuthorize(CheckEmailAuthorizationRequestForm requestForm);
+    Integer checkEmailAuthorize(CheckEmailAuthorizationRequestForm requestForm);
     Boolean addProfile(UserProfileRegisterRequest request);
     Boolean addSellerInfo(SellerInfoRegisterRequest request);
     Boolean login(MemberLoginRequestForm requestForm, HttpServletResponse response);

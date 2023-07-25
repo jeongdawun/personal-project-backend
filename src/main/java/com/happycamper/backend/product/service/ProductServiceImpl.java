@@ -18,9 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -425,7 +423,7 @@ public class ProductServiceImpl implements ProductService {
 
         List<ProductImage> foundProductImageList = productImageRepository.findAllByProductId(foundProduct.getId());
 
-        for(int i = 0; i < foundProductImageList.size(); i++) {
+        for(int i = 0; i < modifyProductImageNameList.size(); i++) {
             foundProductImageList.get(i).setImageName(modifyProductImageNameList.get(i));
         }
 
@@ -445,14 +443,24 @@ public class ProductServiceImpl implements ProductService {
         productOptionRepository.saveAll(foundProductOptionList);
 
         // 3. 수정으로 들어온 상품 옵션별 날짜별 빈자리 개수 추출하여 기존 Options에 덮어씌우기
-        List<List<Options>> modifyOptionsList = optionModifyRequest.getOptionsList();
+        List<ProductOptionModifyRequestForm> modifyRequestForms = optionModifyRequest.getOptionsList();
 
-        for (int i = 0; i < modifyOptionsList.size(); i++) {
+        Map<Long, List<ProductOptionModifyRequestForm>> groupedDataMap = new HashMap<>();
+
+        for (ProductOptionModifyRequestForm requestData : modifyRequestForms) {
+            Long getid = requestData.getId();
+            List<ProductOptionModifyRequestForm> groupedList = groupedDataMap.getOrDefault(getid, new ArrayList<>());
+            groupedList.add(requestData);
+            groupedDataMap.put(getid, groupedList);
+        }
+
+        for (int i = 0; i < foundProductOptionList.size(); i++) {
             List<Options> foundOptionsList = optionsRepository.findAllByProductOptionId(foundProductOptionList.get(i).getId());
+            List<ProductOptionModifyRequestForm> groupedList = groupedDataMap.get(foundProductOptionList.get(i).getId());
 
             for (int j = 0; j < foundOptionsList.size(); j++) {
-                foundOptionsList.get(j).setDate(modifyOptionsList.get(i).get(j).getDate());
-                foundOptionsList.get(j).setCampsiteVacancy(modifyOptionsList.get(i).get(j).getCampsiteVacancy());
+                foundOptionsList.get(j).setDate(TransformToDate.transformToDate(groupedList.get(j).getDateList()));
+                foundOptionsList.get(j).setCampsiteVacancy(groupedList.get(j).getCampsiteVacancyList());
             }
 
             optionsRepository.saveAll(foundOptionsList);

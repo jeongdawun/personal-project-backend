@@ -7,6 +7,7 @@ import com.happycamper.backend.payment.service.reponse.KakaoApproveResponse;
 import com.happycamper.backend.payment.service.reponse.KakaoReadyResponse;
 import com.happycamper.backend.reservation.controller.form.ReservationRequestForm;
 import com.happycamper.backend.reservation.service.ReservationService;
+import com.happycamper.backend.reservation.service.response.MyReservationDetailResponseForm;
 import com.happycamper.backend.reservation.service.response.MyReservationResponseForm;
 import com.happycamper.backend.reservation.service.response.MyReservationStatusResponseForm;
 import jakarta.servlet.http.HttpServletRequest;
@@ -79,5 +80,12 @@ public class ReservationController {
         AuthResponse authResponse = memberService.authorize(request);
         String email = authResponse.getEmail();
         return reservationService.searchMyReservationStatus(email);
+    }
+
+    @GetMapping("/my-reservation-detail/{reservation_id}")
+    public MyReservationDetailResponseForm getMyReservationDetail(HttpServletRequest request, @PathVariable("reservation_id") Long reservation_id) {
+        AuthResponse authResponse = memberService.authorize(request);
+        String email = authResponse.getEmail();
+        return reservationService.searchMyReservationDetail(email, reservation_id);
     }
 }

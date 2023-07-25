@@ -25,8 +25,11 @@ public class Reservation {
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
     private int amount;
-    private int payment;
+    private int totalPrice;
     private String bookingNotes;
+
+    @Setter
+    private String partner_order_id;    // 가맹점 주문번호
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
@@ -43,14 +46,14 @@ public class Reservation {
     @Setter
     private Member member;
 
-    public Reservation(LocalDate reservationDate, String userName, Long contactNumber, LocalDate checkInDate, LocalDate checkOutDate, int amount, int payment, String bookingNotes, Product product, ProductOption productOption, Member member) {
+    public Reservation(LocalDate reservationDate, String userName, Long contactNumber, LocalDate checkInDate, LocalDate checkOutDate, int amount, int totalPrice, String bookingNotes, Product product, ProductOption productOption, Member member) {
         this.reservationDate = reservationDate;
         this.userName = userName;
         this.contactNumber = contactNumber;
         this.checkInDate = checkInDate;
         this.checkOutDate = checkOutDate;
         this.amount = amount;
-        this.payment = payment;
+        this.totalPrice = totalPrice;
         this.bookingNotes = bookingNotes;
         this.product = product;
         this.productOption = productOption;

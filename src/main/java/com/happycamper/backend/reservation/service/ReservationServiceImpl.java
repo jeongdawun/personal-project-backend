@@ -5,6 +5,8 @@ import com.happycamper.backend.member.entity.MemberRole;
 import com.happycamper.backend.member.repository.MemberRepository;
 import com.happycamper.backend.member.repository.MemberRoleRepository;
 import com.happycamper.backend.member.service.response.AuthResponse;
+import com.happycamper.backend.payment.entity.Payment;
+import com.happycamper.backend.payment.repository.PaymentRepository;
 import com.happycamper.backend.payment.service.PaymentService;
 import com.happycamper.backend.payment.service.reponse.KakaoReadyResponse;
 import com.happycamper.backend.product.entity.Options;
@@ -19,6 +21,7 @@ import com.happycamper.backend.reservation.entity.ReservationStatus;
 import com.happycamper.backend.reservation.entity.Status;
 import com.happycamper.backend.reservation.repository.ReservationRepository;
 import com.happycamper.backend.reservation.repository.ReservationStatusRepository;
+import com.happycamper.backend.reservation.service.response.MyReservationDetailResponseForm;
 import com.happycamper.backend.reservation.service.response.MyReservationResponseForm;
 import com.happycamper.backend.reservation.service.response.MyReservationStatusResponseForm;
 import com.happycamper.backend.utility.transform.TransformToDate;
@@ -47,6 +50,7 @@ public class ReservationServiceImpl implements ReservationService {
     final private OptionsRepository optionsRepository;
     final private MemberRepository memberRepository;
     final private MemberRoleRepository memberRoleRepository;
+    final private PaymentRepository paymentRepository;
     final private PaymentService paymentService;
 
     @Override
@@ -110,7 +114,7 @@ public class ReservationServiceImpl implements ReservationService {
         }
         optionsRepository.saveAll(updatedOptionsList);
 
-        int payment = productOption.getOptionPrice() * requestForm.getAmount();
+        int totalPrice = productOption.getOptionPrice() * requestForm.getAmount();
 
 
         // 예약 객체 생성
@@ -122,18 +126,19 @@ public class ReservationServiceImpl implements ReservationService {
                         CheckInDate,
                         CheckOutDate,
                         requestForm.getAmount(),
-                        payment,
+                        totalPrice,
                         requestForm.getBookingNotes(),
                         product,
                         productOption,
-                        member);
+                        member
+                        );
         reservationRepository.save(reservation);
 
         ReservationStatus reservationStatus = new ReservationStatus(REQUESTED);
         reservationStatus.setReservation(reservation);
         reservationStatusRepository.save(reservationStatus);
 
-        double vatAmount = payment * 0.1;
+        double vatAmount = totalPrice * 0.1;
 
         DecimalFormat decimalFormat = new DecimalFormat("#");
 
@@ -143,13 +148,14 @@ public class ReservationServiceImpl implements ReservationService {
 
         UUID orderId = UUID.randomUUID();
         String partner_order_id = orderId.toString();
+        reservation.setPartner_order_id(partner_order_id);
 
         KakaoReadyResponse response = paymentService.kakaoPayReady(
                 partner_order_id,
                 member.getId().toString(),
                 product.getProductName(),
                 Integer.toString(requestForm.getAmount()),
-                Integer.toString(payment),
+                Integer.toString(totalPrice),
                 vatAmountString);
 
         return response;
@@ -198,7 +204,7 @@ public class ReservationServiceImpl implements ReservationService {
                             product.getId(),
                             product.getProductName(),
                             productOption.getOptionName(),
-                            reservation.getPayment(),
+                            reservation.getTotalPrice(),
                             reservation.getCheckInDate(),
                             reservation.getCheckOutDate(),
                             reservationStatus.getStatus()
@@ -318,6 +324,53 @@ public class ReservationServiceImpl implements ReservationService {
             List<Integer> amountList = Arrays.asList(requestedAmount, completedAmount, cancelRequestedAmount, canceledAmount);
 
             return new MyReservationStatusResponseForm(authResponse, statusList, amountList);
+        }
+        return null;
+    }
+
+    @Override
+    public MyReservationDetailResponseForm searchMyReservationDetail(String email, Long reservation_id) {
+        // 사용자의 토큰으로 사용자 특정하기
+        Optional<Member> maybeMember = memberRepository.findByEmail(email);
+        if(maybeMember.isEmpty()) {
+            log.info("사용자 확인 불가");
+            return null;
+        }
+        Member member = maybeMember.get();
+
+        // 해당 사용자의 예약 리스트 가져오기
+        Optional<Reservation> maybeReservation = reservationRepository.findByIdWithMember(reservation_id);
+        if(maybeReservation.isEmpty()) {
+            return null;
+        }
+        Reservation reservation = maybeReservation.get();
+
+        if(member.getId().equals(maybeReservation.get().getMember().getId())) {
+
+            // 결제 내역 찾기
+            Optional<Payment> maybePayment = paymentRepository.findByPartner_order_id(reservation.getPartner_order_id());
+
+            if(maybePayment.isEmpty()) {
+                return null;
+            }
+
+            Payment payment = maybePayment.get();
+
+            MyReservationDetailResponseForm responseForm = new MyReservationDetailResponseForm(
+                    payment.getPartner_order_id(),
+                    reservation.getProduct().getId(),
+                    reservation.getProduct().getProductName(),
+                    reservation.getProductOption().getOptionName(),
+                    reservation.getTotalPrice(),
+                    reservation.getCheckInDate(),
+                    reservation.getCheckOutDate(),
+                    payment.getPayment_method_type(),
+                    payment.getAmount(),
+                    payment.getApproved_at()
+
+            );
+            return responseForm;
+
         }
         return null;
     }

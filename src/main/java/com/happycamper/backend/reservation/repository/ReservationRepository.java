@@ -26,4 +26,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     @Transactional
     void deleteAllByMember(Member member);
+
+    @Query("SELECT r FROM Reservation r JOIN FETCH r.member JOIN FETCH r.product JOIN FETCH r.productOption WHERE r.id = :reservationId")
+    Optional<Reservation> findByIdWithMember(Long reservationId);
 }

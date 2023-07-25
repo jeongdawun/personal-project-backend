@@ -280,7 +280,7 @@ public class ReservationServiceImpl implements ReservationService {
             Optional<Product> maybeProduct = productRepository.findByMember(member);
 
             if(maybeProduct.isEmpty()) {
-                return null;
+                return new MyReservationStatusResponseForm(authResponse, null, null);
             }
             Product product = maybeProduct.get();
 

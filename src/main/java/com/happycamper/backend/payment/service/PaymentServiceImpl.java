@@ -27,6 +27,12 @@ public class PaymentServiceImpl implements PaymentService{
     // 카카오페이 api admin_key(내 애플리케이션 -> 앱 키 4번째)
     @Value("${kakaopay.admin.key}")
     private String admin_Key;
+    @Value("${kakaopay.approval.url}")
+    private String approval_url;
+    @Value("${kakaopay.cancel.url}")
+    private String cancel_url;
+    @Value("${kakaopay.fail.url}")
+    private String fail_url;
     private KakaoReadyResponse kakaoReady;
 
     // 카카오로 결제 요청
@@ -48,9 +54,9 @@ public class PaymentServiceImpl implements PaymentService{
         parameters.add("total_amount", total_amount);
         parameters.add("vat_amount", vat_amount);
         parameters.add("tax_free_amount", "0");
-        parameters.add("approval_url", "http://localhost:7777/reservation/success/" + partner_order_id + "/" + partner_user_id); // 성공 시 redirect url
-        parameters.add("cancel_url", "http://localhost:7777/payment/cancel"); // 취소 시 redirect url
-        parameters.add("fail_url", "http://localhost:7777/payment/fail"); // 실패 시 redirect url
+        parameters.add("approval_url", approval_url + partner_order_id + "/" + partner_user_id); // 성공 시 redirect url
+        parameters.add("cancel_url", cancel_url); // 취소 시 redirect url
+        parameters.add("fail_url", fail_url); // 실패 시 redirect url
 
         // 파라미터, 헤더
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(parameters, this.getHeaders());

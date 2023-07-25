@@ -85,7 +85,7 @@ public class ProductController {
                                   @RequestBody ProductModifyRequestForm requestForm) {
         AuthResponse authResponse = memberService.authorize(request);
         String email = authResponse.getEmail();
-        return productService.modify(email, id, requestForm.toProductRegisterRequest(), requestForm.toProductOptionModifyRequest());
+        return productService.modify(email, id, requestForm.toProductModifyRequest(), requestForm.toProductOptionModifyRequest());
     }
 
     @GetMapping("/search/{keyword}")

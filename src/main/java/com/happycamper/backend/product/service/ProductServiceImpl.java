@@ -5,6 +5,7 @@ import com.happycamper.backend.member.repository.MemberRepository;
 import com.happycamper.backend.product.controller.form.*;
 import com.happycamper.backend.product.entity.*;
 import com.happycamper.backend.product.repository.*;
+import com.happycamper.backend.product.service.request.ProductModifyRequest;
 import com.happycamper.backend.product.service.request.ProductOptionModifyRequest;
 import com.happycamper.backend.product.service.request.ProductOptionRegisterRequest;
 import com.happycamper.backend.product.service.request.ProductRegisterRequest;
@@ -398,7 +399,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Boolean modify(String email, Long id, ProductRegisterRequest productRegisterRequest, ProductOptionModifyRequest optionModifyRequest) {
+    public Boolean modify(String email, Long id, ProductModifyRequest productModifyRequest, ProductOptionModifyRequest optionModifyRequest) {
         Optional<Member> maybeMember = memberRepository.findByEmail(email);
 
         if(maybeMember.isEmpty()) {
@@ -417,10 +418,10 @@ public class ProductServiceImpl implements ProductService {
             return false;
         }
         Product foundProduct = maybeProduct.get();
-        foundProduct.setProductDetails(productRegisterRequest.getProductDetails());
+        foundProduct.setProductDetails(productModifyRequest.getProductDetails());
 
         // 1. 수정으로 들어온 이미지 이름 추출하여 기존 ProductImage에 덮어씌우기
-        List<String> modifyProductImageNameList = productRegisterRequest.getImageNameList();
+        List<String> modifyProductImageNameList = productModifyRequest.getImageNameList();
 
         List<ProductImage> foundProductImageList = productImageRepository.findAllByProductId(foundProduct.getId());
 
@@ -449,7 +450,7 @@ public class ProductServiceImpl implements ProductService {
         for (int i = 0; i < modifyOptionsList.size(); i++) {
             List<Options> foundOptionsList = optionsRepository.findAllByProductOptionId(foundProductOptionList.get(i).getId());
 
-            for (int j = 0; j < modifyOptionsList.get(i).size(); j++) {
+            for (int j = 0; j < foundOptionsList.size(); j++) {
                 foundOptionsList.get(j).setDate(modifyOptionsList.get(i).get(j).getDate());
                 foundOptionsList.get(j).setCampsiteVacancy(modifyOptionsList.get(i).get(j).getCampsiteVacancy());
             }

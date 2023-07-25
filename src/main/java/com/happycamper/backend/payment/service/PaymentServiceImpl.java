@@ -1,5 +1,7 @@
 package com.happycamper.backend.payment.service;
 
+import com.happycamper.backend.payment.entity.Payment;
+import com.happycamper.backend.payment.repository.PaymentRepository;
 import com.happycamper.backend.payment.service.reponse.KakaoApproveResponse;
 import com.happycamper.backend.payment.service.reponse.KakaoReadyResponse;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,8 @@ import org.springframework.web.client.RestTemplate;
 @RequiredArgsConstructor
 @Transactional
 public class PaymentServiceImpl implements PaymentService{
+
+    final private PaymentRepository paymentRepository;
 
     // 카카오페이 api 테스트 cid 값
     static final String cid = "TC0ONETIME";
@@ -86,6 +90,20 @@ public class PaymentServiceImpl implements PaymentService{
                 "https://kapi.kakao.com/v1/payment/approve",
                 requestEntity,
                 KakaoApproveResponse.class);
+
+        Payment payment = new Payment(
+                approveResponse.getTid(),
+                approveResponse.getCid(),
+                approveResponse.getPartner_order_id(),
+                approveResponse.getPartner_user_id(),
+                approveResponse.getPayment_method_type(),
+                approveResponse.getAmount(),
+                approveResponse.getItem_name(),
+                approveResponse.getQuantity(),
+                approveResponse.getApproved_at()
+                );
+
+        paymentRepository.save(payment);
 
         return approveResponse;
     }

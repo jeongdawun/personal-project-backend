@@ -1,5 +1,6 @@
 package com.happycamper.backend.payment.entity;
 
+import jakarta.persistence.Embeddable;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -7,6 +8,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
+@Embeddable
 public class Amount {
     private int total;          // 전체 결제 금액
     private int tax_free;       // 비과세 금액

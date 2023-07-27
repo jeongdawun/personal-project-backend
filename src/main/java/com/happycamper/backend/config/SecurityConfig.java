@@ -1,9 +1,9 @@
 package com.happycamper.backend.config;
 
-import com.happycamper.backend.member.authorization.JwtTokenFilter;
-import com.happycamper.backend.member.authorization.JwtUtil;
-import com.happycamper.backend.member.service.MemberService;
-import com.happycamper.backend.member.service.RedisService;
+import com.happycamper.backend.authorization.JwtTokenFilter;
+import com.happycamper.backend.authorization.JwtUtil;
+import com.happycamper.backend.domain.member.service.MemberService;
+import com.happycamper.backend.domain.member.service.RedisService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

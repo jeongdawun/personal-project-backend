@@ -1,8 +1,8 @@
 package com.happycamper.backend.config;
 
-import com.happycamper.backend.member.entity.Role;
-import com.happycamper.backend.member.entity.RoleType;
-import com.happycamper.backend.member.repository.RoleRepository;
+import com.happycamper.backend.domain.member.entity.Role;
+import com.happycamper.backend.domain.member.entity.RoleType;
+import com.happycamper.backend.domain.member.repository.RoleRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

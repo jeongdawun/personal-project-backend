@@ -3,6 +3,8 @@ package com.happycamper.backend.member.service;
 import com.happycamper.backend.member.controller.form.*;
 import com.happycamper.backend.member.entity.Member;
 import com.happycamper.backend.member.entity.Role;
+import com.happycamper.backend.member.service.request.MemberLoginRequest;
+import com.happycamper.backend.member.service.request.MemberPasswordCheckRequest;
 import com.happycamper.backend.member.service.request.SellerInfoRegisterRequest;
 import com.happycamper.backend.member.service.request.UserProfileRegisterRequest;
 import com.happycamper.backend.member.service.response.AuthResponse;
@@ -23,10 +25,10 @@ public interface MemberService {
     Integer checkEmailAuthorize(String email);
     Boolean addProfile(UserProfileRegisterRequest request);
     Boolean addSellerInfo(SellerInfoRegisterRequest request);
-    Boolean login(MemberLoginRequestForm requestForm, HttpServletResponse response);
+    Boolean login(MemberLoginRequest request, HttpServletResponse response);
     AuthResponse authorize(HttpServletRequest request);
     UserProfileResponse getUserProfile(HttpServletRequest request);
     SellerInfoResponse getSellerInfo(HttpServletRequest request);
     Boolean logout(HttpServletRequest request, HttpServletResponse response);
-    Boolean withdrawal(HttpServletRequest request, HttpServletResponse response, String password);
+    Boolean withdrawal(HttpServletRequest request, HttpServletResponse response, MemberPasswordCheckRequest password);
 }

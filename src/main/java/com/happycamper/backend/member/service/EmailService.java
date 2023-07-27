@@ -1,7 +1,6 @@
 package com.happycamper.backend.member.service;
 
 import com.happycamper.backend.member.entity.Email;
-import com.happycamper.backend.utility.random.CustomRandom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

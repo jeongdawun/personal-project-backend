@@ -10,10 +10,7 @@ import com.happycamper.backend.member.repository.MemberRoleRepository;
 import com.happycamper.backend.member.repository.RoleRepository;
 import com.happycamper.backend.member.repository.sellerInfo.SellerInfoRepository;
 import com.happycamper.backend.member.repository.userProfile.UserProfileRepository;
-import com.happycamper.backend.member.service.request.BusinessMemberRegisterRequest;
-import com.happycamper.backend.member.service.request.NormalMemberRegisterRequest;
-import com.happycamper.backend.member.service.request.SellerInfoRegisterRequest;
-import com.happycamper.backend.member.service.request.UserProfileRegisterRequest;
+import com.happycamper.backend.member.service.request.*;
 import com.happycamper.backend.member.service.response.AuthResponse;
 import com.happycamper.backend.member.service.response.SellerInfoResponse;
 import com.happycamper.backend.member.service.response.UserProfileResponse;
@@ -247,15 +244,15 @@ public class MemberServiceImpl implements MemberService{
 
     // 로그인(완료)
     @Override
-    public Boolean login(MemberLoginRequestForm requestForm, HttpServletResponse response) {
-        final Member member = findMemberByEmail(requestForm.getEmail());
+    public Boolean login(MemberLoginRequest request, HttpServletResponse response) {
+        final Member member = findMemberByEmail(request.getEmail());
 
         if(member == null) {
             return false;
         }
 
         // 사용자가 입력한 비밀번호와 DB에 저장된 비밀번호가 일치한다면
-        if(passwordEncoder.matches(requestForm.getPassword(), member.getPassword())) {
+        if(passwordEncoder.matches(request.getPassword(), member.getPassword())) {
 
             // AccessToken : 1시간 1 * 60 * 60 * 1000
             // RefreshToken : 2주 14 * 24 * 60 * 60 * 1000
@@ -395,7 +392,7 @@ public class MemberServiceImpl implements MemberService{
 
     // 일반 회원의 회원탙퇴(완료)
     @Override
-    public Boolean withdrawal(HttpServletRequest request, HttpServletResponse response, String password) {
+    public Boolean withdrawal(HttpServletRequest request, HttpServletResponse response, MemberPasswordCheckRequest passwordCheckRequest) {
 
         String accessToken = JwtUtil.extractTokenByCookie(request, "AccessToken");
         String refreshToken = JwtUtil.extractTokenByCookie(request, "RefreshToken");
@@ -414,7 +411,7 @@ public class MemberServiceImpl implements MemberService{
             return false;
         }
 
-        if (!passwordEncoder.matches(password, member.getPassword())) {
+        if (!passwordEncoder.matches(passwordCheckRequest.getPassword(), member.getPassword())) {
             log.info("Wrong password");
             return false;
         }

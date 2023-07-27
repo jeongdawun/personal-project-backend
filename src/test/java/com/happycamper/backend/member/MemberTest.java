@@ -41,7 +41,6 @@ public class MemberTest {
         // 가입된 메일로 중복 확인
         final String email = "test@test.com";
 
-        CheckEmailDuplicateRequestForm requestForm = new CheckEmailDuplicateRequestForm(email);
         Boolean isDuplicatedEmail = memberService.checkEmailDuplicate(email);
         System.out.println("isDuplicatedEmail: " + isDuplicatedEmail);
 
@@ -70,7 +69,6 @@ public class MemberTest {
         // 사용자가 입력한 이메일
         final String userEmail = "jeongdawun33@gmail.com";
 
-        CheckEmailAuthorizationRequestForm requestForm = new CheckEmailAuthorizationRequestForm(userEmail);
         Integer authCode = memberService.checkEmailAuthorize(userEmail);
 
         assertTrue(authCode != null);

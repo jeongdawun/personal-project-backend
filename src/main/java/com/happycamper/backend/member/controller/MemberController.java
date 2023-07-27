@@ -70,7 +70,7 @@ public class MemberController {
     // 로그인(완료)
     @PostMapping("/login")
     public Boolean login(@RequestBody MemberLoginRequestForm requestForm, HttpServletResponse response) {
-        return memberService.login(requestForm, response);
+        return memberService.login(requestForm.toMemberLoginRequest(), response);
     }
 
     // 로그아웃(완료)
@@ -107,7 +107,7 @@ public class MemberController {
 
     // 일반 회원의 회원탙퇴(완료)
     @PostMapping("/withdrawal")
-    public Boolean withdrawal(HttpServletRequest request, HttpServletResponse response, @RequestParam String password) {
-        return memberService.withdrawal(request, response, password);
+    public Boolean withdrawal(HttpServletRequest request, HttpServletResponse response, @RequestBody MemberPasswordCheckRequestForm requestForm) {
+        return memberService.withdrawal(request, response, requestForm.toMemberPasswordCheckRequest());
     }
 }

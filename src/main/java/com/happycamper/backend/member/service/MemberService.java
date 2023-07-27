@@ -13,20 +13,20 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public interface MemberService {
 
-    Member findLoginMemberByEmail(String email);
+    Member findMemberByEmail(String email);
     Role findLoginMemberRoleByEmail(String email);
     Boolean normalMemberRegister(NormalMemberRegisterForm requestForm);
-    Boolean checkEmailDuplicate(CheckEmailDuplicateRequestForm requestForm);
-    Boolean checkBusinessNumberDuplicate(CheckBusinessNumberDuplicateRequestForm requestForm);
-    Boolean checkNickNameDuplicate(CheckNickNameDuplicateRequestForm requestForm);
+    Boolean checkEmailDuplicate(String email);
+    Boolean checkBusinessNumberDuplicate(Long businessNumber);
+    Boolean checkNickNameDuplicate(String nickName);
     Boolean businessMemberRegister(BusinessMemberRegisterForm requestForm);
-    Integer checkEmailAuthorize(CheckEmailAuthorizationRequestForm requestForm);
+    Integer checkEmailAuthorize(String email);
     Boolean addProfile(UserProfileRegisterRequest request);
     Boolean addSellerInfo(SellerInfoRegisterRequest request);
     Boolean login(MemberLoginRequestForm requestForm, HttpServletResponse response);
     AuthResponse authorize(HttpServletRequest request);
     UserProfileResponse getUserProfile(HttpServletRequest request);
     SellerInfoResponse getSellerInfo(HttpServletRequest request);
-    void logout(HttpServletRequest request, HttpServletResponse response);
-    Boolean withdraw(HttpServletRequest request, HttpServletResponse response, String password);
+    Boolean logout(HttpServletRequest request, HttpServletResponse response);
+    Boolean withdrawal(HttpServletRequest request, HttpServletResponse response, String password);
 }

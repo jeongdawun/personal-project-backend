@@ -29,7 +29,6 @@ public class EmailService {
         message.setText(email.getContent());
         emailSender.send(message);
 
-        log.info("전송 이메일 내용: ", message);
         return message.getText();
     }
 

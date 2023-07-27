@@ -42,7 +42,7 @@ public class MemberTest {
         final String email = "test@test.com";
 
         CheckEmailDuplicateRequestForm requestForm = new CheckEmailDuplicateRequestForm(email);
-        Boolean isDuplicatedEmail = memberService.checkEmailDuplicate(requestForm);
+        Boolean isDuplicatedEmail = memberService.checkEmailDuplicate(email);
         System.out.println("isDuplicatedEmail: " + isDuplicatedEmail);
 
         // 중복이면 성공
@@ -71,7 +71,7 @@ public class MemberTest {
         final String userEmail = "jeongdawun33@gmail.com";
 
         CheckEmailAuthorizationRequestForm requestForm = new CheckEmailAuthorizationRequestForm(userEmail);
-        Integer authCode = memberService.checkEmailAuthorize(requestForm);
+        Integer authCode = memberService.checkEmailAuthorize(userEmail);
 
         assertTrue(authCode != null);
     }

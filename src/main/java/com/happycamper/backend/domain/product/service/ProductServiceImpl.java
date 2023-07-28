@@ -13,6 +13,8 @@ import com.happycamper.backend.domain.product.service.request.ProductOptionRegis
 import com.happycamper.backend.domain.product.service.response.*;
 import com.happycamper.backend.domain.product.service.request.ProductModifyRequest;
 import com.happycamper.backend.domain.product.service.request.ProductRegisterRequest;
+import com.happycamper.backend.domain.reservation.entity.Reservation;
+import com.happycamper.backend.domain.reservation.repository.ReservationRepository;
 import com.happycamper.backend.utility.number.NumberUtils;
 import com.happycamper.backend.utility.transform.TransformToDate;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,7 @@ public class ProductServiceImpl implements ProductService {
     final private ProductMainImageRepository productMainImageRepository;
     final private OptionsRepository optionsRepository;
     final private MemberRepository memberRepository;
+    final private ReservationRepository reservationRepository;
 
     @Override
     public Boolean checkProductNameDuplicate(CheckProductNameDuplicateRequestForm requestForm) {
@@ -478,6 +481,65 @@ public class ProductServiceImpl implements ProductService {
         List<ProductListResponseForm> responseFormList = new ArrayList<>();
 
         for(Product product : productList) {
+            List<ProductOption> productOptionList = productOptionRepository.findAllByProductId(product.getId());
+
+            List<Integer> optionPriceList = new ArrayList<>();
+
+            for(ProductOption productOption: productOptionList) {
+                optionPriceList.add(productOption.getOptionPrice());
+            }
+            int minPrice = NumberUtils.findMinValue(optionPriceList);
+
+            Optional<ProductMainImage> productMainImage = productMainImageRepository.findById(product.getId());
+
+            if(productMainImage.isPresent()) {
+                ProductListResponseForm responseForm = new ProductListResponseForm(
+                        product.getId(),
+                        product.getProductName(),
+                        product.getCategory(),
+                        productMainImage.get().getMainImageName(),
+                        minPrice);
+                responseFormList.add(responseForm);
+            }
+        }
+        return responseFormList;
+    }
+
+    @Override
+    public List<ProductListResponseForm> topList() {
+        List<Product> productList = productRepository.findAll();
+
+        Map<Long, Integer> reservationNumberByProduct = new HashMap<>();
+        for(Product product: productList) {
+            List<Reservation> reservationList = reservationRepository.findAllByProduct(product);
+            int reservationNumber = reservationList.size();
+            reservationNumberByProduct.put(product.getId(), reservationNumber);
+        }
+
+        // 예약 건수를 내림차순으로 정렬하는 새로운 리스트를 생성
+        List<Map.Entry<Long, Integer>> sortedList = new ArrayList<>(reservationNumberByProduct.entrySet());
+        sortedList.sort(Map.Entry.<Long, Integer>comparingByValue().reversed());
+
+        // 상위 8개만 가져오기
+        List<Map.Entry<Long, Integer>> top8List = sortedList.subList(0, Math.min(8, sortedList.size()));
+
+        // 상위 8개 상품의 id 가져오기
+        List<Long> top8ProductIds = new ArrayList<>();
+        for (Map.Entry<Long, Integer> entry : top8List) {
+            top8ProductIds.add(entry.getKey());
+        }
+        
+        List<Product> top8Products = new ArrayList<>();
+        for (Long productId : top8ProductIds) {
+            Product product = productRepository.findById(productId).orElse(null);
+            if (product != null) {
+                top8Products.add(product);
+            }
+        }
+
+        List<ProductListResponseForm> responseFormList = new ArrayList<>();
+
+        for(Product product : top8Products) {
             List<ProductOption> productOptionList = productOptionRepository.findAllByProductId(product.getId());
 
             List<Integer> optionPriceList = new ArrayList<>();

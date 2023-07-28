@@ -25,4 +25,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Product> findWithMemberById(Long id);
 
     List<Product> findAllByProductNameContaining(String keyword);
+
+    @Query("SELECT p.id FROM Product p")
+    List<Long> findIdAll();
 }

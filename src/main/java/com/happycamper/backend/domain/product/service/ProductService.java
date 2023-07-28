@@ -23,4 +23,5 @@ public interface ProductService {
     MyProductListResponseForm myList(String email);
     Boolean modify(String email, Long id, ProductModifyRequest productModifyRequest, ProductOptionModifyRequest optionModifyRequest);
     List<ProductListResponseForm> listByKeyword(String keyword);
+    List<ProductListResponseForm> topList();
 }

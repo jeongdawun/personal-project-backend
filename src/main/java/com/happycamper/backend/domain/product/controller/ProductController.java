@@ -94,4 +94,10 @@ public class ProductController {
         List<ProductListResponseForm> productListByKeyword = productService.listByKeyword(keyword);
         return productListByKeyword;
     }
+
+    @GetMapping("/topList")
+    public List<ProductListResponseForm> productTopList () {
+        List<ProductListResponseForm> ProductList = productService.topList();
+        return ProductList;
+    }
 }

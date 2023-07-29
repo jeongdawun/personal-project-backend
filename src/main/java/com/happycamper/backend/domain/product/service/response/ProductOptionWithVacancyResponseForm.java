@@ -10,6 +10,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductOptionWithVacancyResponseForm {
     final private Long id;
-    final private List<LocalDate> dateList;
-    final private List<Integer> campsiteVacancyList;
+    final private LocalDate dateList;
+    final private Integer campsiteVacancyList;
 }

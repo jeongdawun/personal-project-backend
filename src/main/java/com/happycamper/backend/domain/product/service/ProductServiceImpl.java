@@ -415,15 +415,10 @@ public class ProductServiceImpl implements ProductService {
 
                     System.out.println("optionsList is present");
                     for(Options options: optionsList) {
-                        List<LocalDate> dateList = new ArrayList<>();
-                        List<Integer> campsiteVacancyList = new ArrayList<>();
-
-                        dateList.add(options.getDate());
-                        campsiteVacancyList.add(options.getCampsiteVacancy());
                         ProductOptionWithVacancyResponseForm responseForm =
                                 new ProductOptionWithVacancyResponseForm(
                                         productOption.getId(),
-                                        dateList, campsiteVacancyList);
+                                        options.getDate(), options.getCampsiteVacancy());
                         responseFormList.add(responseForm);
                     }
                     responseFormList1.add(productOptionResponseForm);

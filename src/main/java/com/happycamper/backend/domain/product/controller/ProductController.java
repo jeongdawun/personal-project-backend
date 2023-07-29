@@ -29,7 +29,6 @@ public class ProductController {
 
     @PostMapping("/register")
     public Boolean registerProduct(HttpServletRequest request, @RequestBody ProductRegisterRequestForm requestForm) {
-
         AuthResponse authResponse = memberService.authorize(request);
         String email = authResponse.getEmail();
         return productService.register(email, requestForm.toProductRegisterRequest(), requestForm.toProductOptionRegisterRequest());
@@ -90,7 +89,6 @@ public class ProductController {
 
     @GetMapping("/search/{keyword}")
     public List<ProductListResponseForm> productListByKeyword(@PathVariable("keyword") String keyword) {
-        log.info("하냐? " + keyword);
         List<ProductListResponseForm> productListByKeyword = productService.listByKeyword(keyword);
         return productListByKeyword;
     }

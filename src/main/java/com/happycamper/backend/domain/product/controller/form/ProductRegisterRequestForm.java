@@ -1,5 +1,6 @@
 package com.happycamper.backend.domain.product.controller.form;
 
+import com.happycamper.backend.domain.product.entity.FacilityType;
 import com.happycamper.backend.domain.product.entity.Options;
 import com.happycamper.backend.domain.product.service.request.ProductOptionRegisterRequest;
 import com.happycamper.backend.domain.product.service.request.ProductRegisterRequest;
@@ -19,6 +20,7 @@ public class ProductRegisterRequestForm {
     final private String category;
     final private String productDetails;
     final private String address;
+    final private List<FacilityType> facilityType;
     final private String mainImageName;
     final private List<String> imageNameList;
     final private List<String> optionNameList;
@@ -39,7 +41,7 @@ public class ProductRegisterRequestForm {
     }
 
     public ProductRegisterRequest toProductRegisterRequest() {
-        return new ProductRegisterRequest(productName, category, productDetails, address, mainImageName, imageNameList);
+        return new ProductRegisterRequest(productName, category, productDetails, address, facilityType, mainImageName, imageNameList);
     }
 
     public ProductOptionRegisterRequest toProductOptionRegisterRequest() {

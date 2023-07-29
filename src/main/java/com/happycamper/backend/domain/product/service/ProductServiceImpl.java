@@ -33,6 +33,8 @@ public class ProductServiceImpl implements ProductService {
     final private ProductOptionRepository productOptionRepository;
     final private ProductImageRepository productImageRepository;
     final private ProductMainImageRepository productMainImageRepository;
+    final private ProductFacilityRepository productFacilityRepository;
+    final private FacilityRepository facilityRepository;
     final private OptionsRepository optionsRepository;
     final private MemberRepository memberRepository;
     final private ReservationRepository reservationRepository;
@@ -90,6 +92,26 @@ public class ProductServiceImpl implements ProductService {
             productMainImage.setProduct(product);
 
             productRepository.save(product);
+
+            List<FacilityType> selectedFacilityTypes = productRegisterRequest.getFacilityType();
+            List<Facility> facilities = new ArrayList<>();
+
+            for (FacilityType facilityType : selectedFacilityTypes) {
+                Optional<Facility> facility = facilityRepository.findByFacilityType(facilityType);
+                if(facility.isPresent()) {
+                    facilities.add(facility.get());
+                }
+            }
+
+            List<ProductFacility> createProductFacility = new ArrayList<>();
+
+            for(int i = 0; i < facilities.size(); i++) {
+                ProductFacility productFacility = new ProductFacility(
+                        facilities.get(i), product);
+                createProductFacility.add(productFacility);
+            }
+
+            productFacilityRepository.saveAll(createProductFacility);
             productImageRepository.saveAll(createProductImageList);
             productOptionRepository.saveAll(createProductOptionList);
             productMainImageRepository.save(productMainImage);
@@ -131,6 +153,7 @@ public class ProductServiceImpl implements ProductService {
                 for(ProductOption productOption : productOptionList) {
                     optionsRepository.deleteAllByProductOptionId(productOption.getId());
                 }
+                productFacilityRepository.deleteAllByProductId(id);
                 productOptionRepository.deleteAllByProductId(id);
                 productImageRepository.deleteAllByProductId(id);
                 productMainImageRepository.deleteByProductId(id);
@@ -146,11 +169,13 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductListResponseForm> list() {
         List<Product> productList = productRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
 
+        System.out.println("productId " + productList.size());
         List<ProductListResponseForm> responseFormList = new ArrayList<>();
 
         for(Product product : productList) {
             List<ProductOption> productOptionList = productOptionRepository.findAllByProductId(product.getId());
 
+            System.out.println("productId " + productOptionList.get(1).getId() + productOptionList.get(1).getOptionPrice());
             List<Integer> optionPriceList = new ArrayList<>();
 
             for(ProductOption productOption: productOptionList) {
@@ -158,18 +183,17 @@ public class ProductServiceImpl implements ProductService {
             }
             int minPrice = NumberUtils.findMinValue(optionPriceList);
 
-            Optional<ProductMainImage> productMainImage = productMainImageRepository.findById(product.getId());
+            ProductMainImage productMainImage = productMainImageRepository.findByProductId(product.getId());
 
-            if(productMainImage.isPresent()) {
-                ProductListResponseForm responseForm = new ProductListResponseForm(
-                        product.getId(),
-                        product.getProductName(),
-                        product.getCategory(),
-                        productMainImage.get().getMainImageName(),
-                        minPrice);
-                responseFormList.add(responseForm);
-            }
+            ProductListResponseForm responseForm = new ProductListResponseForm(
+                    product.getId(),
+                    product.getProductName(),
+                    product.getCategory(),
+                    productMainImage.getMainImageName(),
+                    minPrice);
+            responseFormList.add(responseForm);
         }
+        System.out.println("size " + responseFormList.size());
         return responseFormList;
     }
 
@@ -198,7 +222,19 @@ public class ProductServiceImpl implements ProductService {
         // 3. 상품 이미지 모두 찾아서 리스트에 담기
         List<ProductImage> productImagesList = productImageRepository.findAllByProductId(product.getId());
 
-        return new ProductReadResponseForm(product, responseFormList,  productImagesList);
+        // 4. 상품 시설정보 모두 찾아서 리스트에 담기
+        List<ProductFacility> productFacilityList = productFacilityRepository.findAllByProductId(product.getId());
+
+        List<Facility> facilities = new ArrayList<>();
+        for(ProductFacility productFacility: productFacilityList) {
+            Optional<Facility> facility = facilityRepository.findById(productFacility.getFacility().getId());
+
+            if(facility.isPresent()) {
+                facilities.add(facility.get());
+            }
+        }
+
+        return new ProductReadResponseForm(product, responseFormList, productImagesList, facilities);
     }
 
     @Override
@@ -396,7 +432,19 @@ public class ProductServiceImpl implements ProductService {
                 ProductMainImage productMainImage = productMainImageRepository.findByProductId(product.getId());
                 List<ProductImage> productImagesList = productImageRepository.findAllByProductId(product.getId());
 
-                return new MyProductListResponseForm(product, responseFormList1, responseFormList, productMainImage, productImagesList);
+                // 4. 상품 시설정보 모두 찾아서 리스트에 담기
+                List<ProductFacility> productFacilityList = productFacilityRepository.findAllByProductId(product.getId());
+
+                List<Facility> facilities = new ArrayList<>();
+                for(ProductFacility productFacility: productFacilityList) {
+                    Optional<Facility> facility = facilityRepository.findById(productFacility.getFacility().getId());
+
+                    if(facility.isPresent()) {
+                        facilities.add(facility.get());
+                    }
+                }
+
+                return new MyProductListResponseForm(product, responseFormList1, responseFormList, productMainImage, productImagesList, facilities);
             }
         }
         return null;

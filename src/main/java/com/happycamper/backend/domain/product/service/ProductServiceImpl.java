@@ -141,13 +141,21 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void delete(String email, Long id) {
+    public Boolean delete(String email, Long id) {
 
         Optional<Member> maybeMember = memberRepository.findByEmail(email);
 
         if(maybeMember.isPresent()) {
             Optional<Product> maybeProduct = productRepository.findProductById(id);
-            Member memberByProduct = maybeProduct.get().getMember();
+            if(maybeProduct.isEmpty()) {
+                return false;
+            }
+            Product product = maybeProduct.get();
+            List<Reservation> reservationList = reservationRepository.findAllByProduct(product);
+            if(reservationList.size() > 0) {
+                return false;
+            }
+            Member memberByProduct = product.getMember();
             if(memberByProduct.getId().equals(maybeMember.get().getId())) {
                 List<ProductOption> productOptionList = productOptionRepository.findAllByProductId(id);
                 for(ProductOption productOption : productOptionList) {
@@ -158,11 +166,14 @@ public class ProductServiceImpl implements ProductService {
                 productImageRepository.deleteAllByProductId(id);
                 productMainImageRepository.deleteByProductId(id);
                 productRepository.deleteById(id);
+                return true;
             }
             else {
                 log.info("Cannot delete");
+                return false;
             }
         }
+        return false;
     }
 
     @Override
@@ -446,28 +457,31 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Boolean modify(String email, Long id, ProductModifyRequest productModifyRequest, ProductOptionModifyRequest optionModifyRequest) {
+    public Boolean modify(String email, Long id,
+                          ProductModifyRequest productModifyRequest,
+                          ProductOptionModifyRequest optionModifyRequest) {
         Optional<Member> maybeMember = memberRepository.findByEmail(email);
 
         if(maybeMember.isEmpty()) {
-            log.info("존재하지 않는 사용자");
+            log.debug("User not found");
             return false;
         }
         Optional<Product> maybeProduct = productRepository.findWithMemberById(id);
         if(maybeProduct.isEmpty()){
-            log.info("존재하지 않는 상품");
+            log.debug("Product not found");
             return false;
         }
 
         Member member = maybeProduct.get().getMember();
         if(!member.getId().equals(maybeMember.get().getId())) {
-            log.info("본인이 등록한 상품이 아님");
+            log.debug("Not the owner's registered product");
             return false;
         }
         Product foundProduct = maybeProduct.get();
         foundProduct.setProductDetails(productModifyRequest.getProductDetails());
+        productRepository.save(foundProduct);
 
-        // 1. 수정으로 들어온 이미지 이름 추출하여 기존 ProductImage에 덮어씌우기
+        // 1. 수정으로 들어온 이미지 이름 추출하여 기존 ProductImage을 갱신하기
         List<String> modifyProductImageNameList = productModifyRequest.getImageNameList();
 
         List<ProductImage> foundProductImageList = productImageRepository.findAllByProductId(foundProduct.getId());
@@ -475,8 +489,9 @@ public class ProductServiceImpl implements ProductService {
         for(int i = 0; i < modifyProductImageNameList.size(); i++) {
             foundProductImageList.get(i).setImageName(modifyProductImageNameList.get(i));
         }
+        productImageRepository.saveAll(foundProductImageList);
 
-        // 2. 수정으로 들어온 상품 옵션명, 옵션가격 추출하여 기존 ProductOption에 덮어씌우기
+        // 2. 수정으로 들어온 상품 옵션명, 옵션가격 추출하여 기존 ProductOption을 갱신하기
         List<String> modifyOptionNameList = optionModifyRequest.getOptionNameList();
         List<Integer> modifyOptionPriceList = optionModifyRequest.getOptionPriceList();
 
@@ -486,12 +501,9 @@ public class ProductServiceImpl implements ProductService {
             foundProductOptionList.get(i).setOptionName(modifyOptionNameList.get(i));
             foundProductOptionList.get(i).setOptionPrice(modifyOptionPriceList.get(i));
         }
-
-        productRepository.save(foundProduct);
-        productImageRepository.saveAll(foundProductImageList);
         productOptionRepository.saveAll(foundProductOptionList);
 
-        // 3. 수정으로 들어온 상품 옵션별 날짜별 빈자리 개수 추출하여 기존 Options에 덮어씌우기
+        // 3. 수정으로 들어온 상품 옵션별 날짜별 빈자리 개수 추출하여 기존 Options를 갱신하기
         List<ProductOptionModifyRequestForm> modifyRequestForms = optionModifyRequest.getOptionsList();
 
         Map<Long, List<ProductOptionModifyRequestForm>> groupedDataMap = new HashMap<>();

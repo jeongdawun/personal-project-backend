@@ -35,12 +35,12 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteProduct(HttpServletRequest request, @PathVariable("id") Long id) {
+    public Boolean deleteProduct(HttpServletRequest request, @PathVariable("id") Long id) {
 
         AuthResponse authResponse = memberService.authorize(request);
         String email = authResponse.getEmail();
         log.info("what is your email: " + email);
-        productService.delete(email, id);
+        return productService.delete(email, id);
     }
 
     @GetMapping("/list")
@@ -78,7 +78,7 @@ public class ProductController {
         return productListByCategory;
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    @PutMapping("/{id}")
     public Boolean modifyProduct (HttpServletRequest request,
                                   @PathVariable("id") Long id,
                                   @RequestBody ProductModifyRequestForm requestForm) {

@@ -30,7 +30,7 @@ jobs:
         uses: samin/mysql-action@v1
         with:
           character set server: 'utf8'
-          mysql database: 'd-yes'
+          mysql database: 'happy_camper'
           mysql user: ${{ secrets.DB_USER }}
           mysql password: ${{ secrets.DB_PASSWORD }}
       

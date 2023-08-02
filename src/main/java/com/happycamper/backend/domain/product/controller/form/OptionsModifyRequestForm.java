@@ -5,9 +5,9 @@ import lombok.*;
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class ProductOptionModifyRequestForm {
+public class OptionsModifyRequestForm {
 
-    final private Long id;
+    final private Long id; // ProductOption의 id
     final private String dateList;
     final private Integer campsiteVacancyList;
 }

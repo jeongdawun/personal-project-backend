@@ -7,7 +7,7 @@ import java.util.List;
 
 @Getter
 @RequiredArgsConstructor
-public class StockResponseForm {
+public class VacancyResponseForm {
     final private List<String> optionNameList;
     final private List<Integer> campsiteVacancyList;
 

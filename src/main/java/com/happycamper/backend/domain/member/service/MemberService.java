@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public interface MemberService {
 
+    String extractEmailByCookie(HttpServletRequest request);
     Member findMemberByEmail(String email);
     Role findLoginMemberRoleByEmail(String email);
     Boolean normalMemberRegister(NormalMemberRegisterForm requestForm);

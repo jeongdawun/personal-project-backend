@@ -14,7 +14,7 @@ public class ProductModifyRequestForm {
     final private List<String> imageNameList;
     final private List<String> optionNameList;
     final private List<Integer> optionPriceList;
-    final private List<ProductOptionModifyRequestForm> optionModifyRequestFormList;
+    final private List<OptionsModifyRequestForm> optionModifyRequestFormList;
 
     public ProductModifyRequest toProductModifyRequest() {
         return new ProductModifyRequest(productDetails, imageNameList);

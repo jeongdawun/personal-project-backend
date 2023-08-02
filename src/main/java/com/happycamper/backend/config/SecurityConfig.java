@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -27,21 +28,22 @@ public class SecurityConfig {
     private final JwtUtil jwtUtil;
     private final String[] permitUrl = { "/", "/member/signup-normal", "/member/signup-business", "/member/login",
                             "/member/check-nickName-duplicate", "/member/check-businessNumber-duplicate", "/member/check-email-duplicate",
-                            "/member/check-email-authorize", "/product/list", "/product/**", "/product/check-stock", "/product/category/**",
-                            "/product/map-vacancy", "/product/search/**"};
+                            "/member/check-email-authorize", "/product/check-product-name-duplicate", "/product/list", "/product/topList",
+                            "/product/check-vacancy", "/product/check-vacancy-by-date", "/product/category/**", "/product/search/**"};
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
-                .httpBasic().disable()
-                .csrf().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
+                .httpBasic(httpSecurityHttpBasicConfigurer -> httpSecurityHttpBasicConfigurer.disable())
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(new JwtTokenFilter(memberService, redisService, jwtUtil, secretKey), UsernamePasswordAuthenticationFilter.class)
-                .cors().and()
+                .cors(Customizer.withDefaults())
                 .authorizeRequests()
                 .requestMatchers(permitUrl).permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/v1/**").authenticated()
+                .requestMatchers(HttpMethod.GET, "/product/**").permitAll()
+                .requestMatchers(HttpMethod.DELETE, "/product/**").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/product/**").authenticated()
                 .anyRequest().authenticated()
                 .and().build();
     }

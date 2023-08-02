@@ -56,6 +56,13 @@ public class MemberServiceImpl implements MemberService{
     @Value("${jwt.password}")
     private String secretKey;
 
+    // 쿠키로 회원 이메일 찾기(완료)
+    @Override
+    public String extractEmailByCookie(HttpServletRequest request) {
+        String accessToken = JwtUtil.extractTokenByCookie(request, "AccessToken");
+        return JwtUtil.getEmail(accessToken, secretKey);
+    }
+
     // 이메일로 회원 찾기(완료)
     @Override
     public Member findMemberByEmail(String email) {

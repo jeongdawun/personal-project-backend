@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class StockRequestForm {
+public class VacancyRequestForm {
     final private Long id;
     final private String checkInDate;
     final private String checkOutDate;

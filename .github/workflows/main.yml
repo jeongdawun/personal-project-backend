@@ -1,9 +1,8 @@
 name: Deploy
 
 on:
-  push:
-    branches:
-      - main
+  repository_dispatch:
+    types: [TEST_FINISH_TRIGGER]
 
 env:
   DOCKER_IMAGE: ghcr.io/${{ github.actor }}/${{ secrets.SERVER_IMAGE }}
@@ -34,22 +33,6 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
-            
-#       - name: Create redis.properties for CD Deploy
-#         run: |
-#           mkdir -p src/main/resources
-#           cd src/main/resources
-#           pwd
-#           echo "${{ secrets.REDIS_PROPERTIES }}" > redis.properties
-#           cat redis.properties
-          
-#       - name: Create application.properties for CD Deploy
-#         run: |
-#           mkdir -p src/main/resources
-#           cd src/main/resources
-#           pwd
-#           echo "${{ secrets.APP_PROPERTIES }}" > application.properties
-#           cat application.properties
           
       - name: Create application.yaml for CD Deploy
         run: |

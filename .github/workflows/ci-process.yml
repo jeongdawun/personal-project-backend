@@ -45,7 +45,7 @@ jobs:
       # Mocking 테스트 구동
       - name: Mocking Test with gradlew
         run: |
-          ./gradlew test
+          ./gradlew --info test
       
       # TEST 완료 트리거 신호 전송
       - name: send TEST_FINISH_TRIGGER

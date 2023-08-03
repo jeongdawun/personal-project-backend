@@ -30,7 +30,7 @@ jobs:
         uses: samin/mysql-action@v1
         with:
           character set server: 'utf8'
-          mysql database: 'd-yes'
+          mysql database: 'happy_camper'
           mysql user: ${{ secrets.DB_USER }}
           mysql password: ${{ secrets.DB_PASSWORD }}
       
@@ -45,7 +45,7 @@ jobs:
       # Mocking 테스트 구동
       - name: Mocking Test with gradlew
         run: |
-          ./gradlew --info test
+          ./gradlew test
       
       # TEST 완료 트리거 신호 전송
       - name: send TEST_FINISH_TRIGGER

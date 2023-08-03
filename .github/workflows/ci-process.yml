@@ -17,11 +17,18 @@ jobs:
           java-version: '17'
           distribution: 'zulu'
           
+#       # CI Test를 위한 application.yaml 생성
+#       - name: create application for CI Test
+#         run: |
+#           cd src/main/resources
+#           echo "${{ secrets.DEVELOPMENT_CI_CONFIG }}" >> application.yaml
+
       # CI Test를 위한 application.yaml 생성
-      - name: create application for CI Test
+      - name: Create application.yaml for CD Deploy
         run: |
-          cd src/main/resources
-          echo "${{ secrets.DEVELOPMENT_CI_CONFIG }}" >> application.yaml
+          mkdir -p src/main/resources
+          pwd
+          echo "${{ secrets.DEVELOPMENT_CI_CONFIG }}" > src/main/resources/application.yaml
           
       # CI Test에서 사용할 MySQL 설정
       - name: Setup MySQL

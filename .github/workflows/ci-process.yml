@@ -20,10 +20,10 @@ jobs:
       # CI Test를 위한 application.properties 생성
       - name: Create application.yaml for CI Test
         run: |
-          mkdir -p src/main/resources
+          mkdir -p src/test/resources
           pwd
-          echo "${{ secrets.APP_YML }}" > src/main/resources/application.yaml
-          cat src/main/resources/application.yaml
+          echo "${{ secrets.APP_YML }}" > src/test/resources/application.yaml
+          cat src/test/resources/application.yaml
           
       # CI Test에서 사용할 MySQL 설정
       - name: Setup MySQL

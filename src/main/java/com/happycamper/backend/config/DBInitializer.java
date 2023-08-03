@@ -23,7 +23,7 @@ public class DBInitializer {
     private final FacilityRepository facilityRepository;
 
     @PostConstruct
-    private void init () {
+    public void init () {
         log.debug("initializer 시작!");
 
         initAccountRoleTypes();

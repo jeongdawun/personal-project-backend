@@ -20,7 +20,7 @@ public class MemberMockingTest {
 
     @BeforeEach
     public void setup () throws Exception {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
     }
     @Test
     @DisplayName("Mocking 테스트를 준비합니다.")

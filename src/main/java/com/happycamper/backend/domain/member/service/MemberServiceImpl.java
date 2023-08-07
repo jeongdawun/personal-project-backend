@@ -92,10 +92,13 @@ public class MemberServiceImpl implements MemberService{
     public Boolean checkEmailDuplicate(String email) {
         final Member member = findMemberByEmail(email);
 
-        if(member == null) {
-            return false;
+        if(member != null) {
+            if(member.getEmail().equals(email)) {
+                return true;
+            }
         }
-        return true;
+
+        return false;
     }
 
     // 사업자 번호 중복 확인(완료)
@@ -106,7 +109,9 @@ public class MemberServiceImpl implements MemberService{
         Optional<MemberRole> maybeMemberRole = memberRoleRepository.findByBusinessNumber(businessNumber);
 
         if(maybeMemberRole.isPresent()) {
-            return true;
+            if(maybeMemberRole.get().getBusinessNumber().equals(businessNumber)) {
+                return true;
+            }
         }
         return false;
     }
@@ -119,7 +124,9 @@ public class MemberServiceImpl implements MemberService{
         Optional<UserProfile> maybeUserProfile = userProfileRepository.findByNickName(nickName);
 
         if(maybeUserProfile.isPresent()) {
-            return true;
+            if(maybeUserProfile.get().getNickName().equals(nickName)) {
+                return true;
+            }
         }
         return false;
     }

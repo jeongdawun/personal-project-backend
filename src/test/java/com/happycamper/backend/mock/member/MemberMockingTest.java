@@ -1,8 +1,10 @@
 package com.happycamper.backend.mock.member;
 
 import com.happycamper.backend.config.DBInitializer;
-import com.happycamper.backend.domain.member.controller.form.NormalMemberRegisterForm;
 import com.happycamper.backend.domain.member.entity.Member;
+import com.happycamper.backend.domain.member.entity.MemberRole;
+import com.happycamper.backend.domain.member.entity.Role;
+import com.happycamper.backend.domain.member.entity.userProfile.UserProfile;
 import com.happycamper.backend.domain.member.repository.MemberRepository;
 import com.happycamper.backend.domain.member.repository.MemberRoleRepository;
 import com.happycamper.backend.domain.member.repository.RoleRepository;
@@ -26,9 +28,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
-import static com.happycamper.backend.domain.member.entity.RoleType.NORMAL;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.happycamper.backend.domain.member.entity.RoleType.BUSINESS;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 public class MemberMockingTest {
@@ -89,8 +91,30 @@ public class MemberMockingTest {
     @DisplayName("이메일 중복 확인")
     public void 이메일_중복_확인 () {
         String email = "test@test.com";
-        Mockito.when(mockMemberRepository.findByEmail(email)).thenReturn(Optional.of(new Member("test@test.com", "test1234")));
+        when(mockMemberRepository.findByEmail(email)).thenReturn(Optional.of(new Member(email, "test1234")));
         Boolean isDuplicated = mockMemberService.checkEmailDuplicate(email);
+
+        assertTrue(isDuplicated);
+    }
+
+    @Test
+    @DisplayName("사업자번호 중복 확인")
+    public void 사업자번호_중복_확인 () {
+        Long businessNumber = 1234567890L;
+        when(mockMemberRoleRepository.findByBusinessNumber(businessNumber))
+                .thenReturn(Optional.of(new MemberRole(new Role(BUSINESS), new Member("test@test.com","test1234"),businessNumber,null)));
+        Boolean isDuplicated = mockMemberService.checkBusinessNumberDuplicate(businessNumber);
+
+        assertTrue(isDuplicated);
+    }
+
+    @Test
+    @DisplayName("닉네임 중복 확인")
+    public void 닉네임_중복_확인 () {
+        String nickName = "nick";
+        when(mockUserProfileRepository.findByNickName(nickName))
+                .thenReturn(Optional.of(new UserProfile(null,null,nickName,null,new Member("test@test.com","test1234"))));
+        Boolean isDuplicated = mockMemberService.checkNickNameDuplicate(nickName);
 
         assertTrue(isDuplicated);
     }

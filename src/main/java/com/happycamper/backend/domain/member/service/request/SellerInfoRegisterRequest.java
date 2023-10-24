@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class SellerInfoRegisterRequest {
-    final private String email;
     final private Address address;
     final private Long contactNumber;
     final private String bank;

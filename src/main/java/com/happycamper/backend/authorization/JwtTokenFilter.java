@@ -1,8 +1,6 @@
 package com.happycamper.backend.authorization;
 
-import com.happycamper.backend.domain.member.entity.Member;
-import com.happycamper.backend.domain.member.entity.Role;
-import com.happycamper.backend.domain.member.service.MemberService;
+import com.happycamper.backend.domain.authentication.service.CustomUserDetailsService;
 import com.happycamper.backend.domain.member.service.RedisService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -12,23 +10,21 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
 public class JwtTokenFilter extends OncePerRequestFilter {
 
-    private final MemberService memberService;
     private final RedisService redisService;
-    private final JwtUtil jwtUtil;
+    private final CustomUserDetailsService customUserDetailsService;
     private final String secretKey;
-    private final long accessTokenValidTimeMs = 1 * 60 * 60 * 1000; // 1시간 유지 1 * 60 * 60 * 1000
+
+    // Jwt 토큰을 검증하는 필터
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
@@ -36,8 +32,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             FilterChain filterChain) throws ServletException, IOException {
 
         // 쿠키가 없으면 Block
-        Cookie[] cookies =  request.getCookies();
-        if(cookies == null){
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
             log.info("There are no cookies");
             filterChain.doFilter(request, response);
             return;
@@ -87,28 +83,25 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             // 위 모든 사항에 걸러지지 않는다면 RefreshToken에서 email을 추출하여
             // 해당 email로 AccessToken 재발행
             String email = JwtUtil.getEmail(refreshToken, secretKey);
+
+            // 1시간 유지 1 * 60 * 60 * 1000
+            long accessTokenValidTimeMs = 60 * 60 * 1000;
             accessToken = JwtUtil.generateToken(email, secretKey, accessTokenValidTimeMs);
 
             // 쿠키에 새로운 AccessToken 설정 후 응답(토큰과 동일한 유효 시간)
             // 1시간 60 * 60 * 1
-            Cookie newAccessTokenCookie = JwtUtil.generateCookie("AccessToken", accessToken, 60 * 60 * 1, false);
+            Cookie newAccessTokenCookie = JwtUtil.generateCookie("AccessToken", accessToken, 60 * 60, false);
             response.addCookie(newAccessTokenCookie);
 
             log.info("Reissuing the AccessToken token: " + accessToken);
         }
-
         String email = JwtUtil.getEmail(accessToken, secretKey);
 
-        final Member loginMember = memberService.findMemberByEmail(email);
-        final Role role = memberService.findLoginMemberRoleByEmail(email);
-
-        // 권한 부여
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(
-                        loginMember.getEmail(), null, List.of(new SimpleGrantedAuthority(role.toString())));
+                        userDetails.getUsername(), userDetails.getPassword(), userDetails.getAuthorities());
 
-        // Detail 넣어주기
-        authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         filterChain.doFilter(request, response);
     }

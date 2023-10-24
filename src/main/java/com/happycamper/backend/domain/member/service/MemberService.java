@@ -13,6 +13,7 @@ import com.happycamper.backend.domain.member.service.request.UserProfileRegister
 import com.happycamper.backend.domain.member.service.response.AuthResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.core.Authentication;
 
 public interface MemberService {
 
@@ -25,12 +26,12 @@ public interface MemberService {
     Boolean checkNickNameDuplicate(String nickName);
     Boolean businessMemberRegister(BusinessMemberRegisterForm requestForm);
     Integer checkEmailAuthorize(String email);
-    Boolean addProfile(UserProfileRegisterRequest request);
-    Boolean addSellerInfo(SellerInfoRegisterRequest request);
+    Boolean addProfile(UserProfileRegisterRequest request, Authentication authentication);
+    Boolean addSellerInfo(SellerInfoRegisterRequest request, Authentication authentication);
     Boolean login(MemberLoginRequest request, HttpServletResponse response);
     AuthResponse authorize(HttpServletRequest request);
-    UserProfileResponse getUserProfile(HttpServletRequest request);
-    SellerInfoResponse getSellerInfo(HttpServletRequest request);
+    UserProfileResponse getUserProfile(Authentication authentication);
+    SellerInfoResponse getSellerInfo(Authentication authentication);
     Boolean logout(HttpServletRequest request, HttpServletResponse response);
     Boolean withdrawal(HttpServletRequest request, HttpServletResponse response, MemberPasswordCheckRequest password);
 }

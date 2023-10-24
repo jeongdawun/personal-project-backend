@@ -30,6 +30,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -186,8 +187,8 @@ public class MemberServiceImpl implements MemberService{
 
     // 일반 회원 프로필 등록하기(완료)
     @Override
-    public Boolean addProfile(UserProfileRegisterRequest request) {
-        final Member member = findMemberByEmail(request.getEmail());
+    public Boolean addProfile(UserProfileRegisterRequest request, Authentication authentication) {
+        final Member member = findMemberByEmail(authentication.getName());
         if (member == null) {
             return false;
         }
@@ -223,8 +224,8 @@ public class MemberServiceImpl implements MemberService{
 
     // 판매자 회원 고객센터 정보 등록하기(완료)
     @Override
-    public Boolean addSellerInfo(SellerInfoRegisterRequest request) {
-        final Member member = findMemberByEmail(request.getEmail());
+    public Boolean addSellerInfo(SellerInfoRegisterRequest request, Authentication authentication) {
+        final Member member = findMemberByEmail(authentication.getName());
         if (member == null) {
             return false;
         }
@@ -313,9 +314,8 @@ public class MemberServiceImpl implements MemberService{
 
     // 일반 회원 프로필 가져오기(완료)
     @Override
-    public UserProfileResponse getUserProfile(HttpServletRequest request) {
-        String accessToken = JwtUtil.extractTokenByCookie(request, "AccessToken");
-        String email = JwtUtil.getEmail(accessToken, secretKey);
+    public UserProfileResponse getUserProfile(Authentication authentication) {
+        String email = authentication.getName();
 
         final Member member = findMemberByEmail(email);
         if(member != null) {
@@ -344,11 +344,8 @@ public class MemberServiceImpl implements MemberService{
 
     // 판매자 회원 고객센터 정보 가져오기(완료)
     @Override
-    public SellerInfoResponse getSellerInfo(HttpServletRequest request) {
-        String accessToken = JwtUtil.extractTokenByCookie(request, "AccessToken");
-        String email = JwtUtil.getEmail(accessToken, secretKey);
-
-        final Member member = findMemberByEmail(email);
+    public SellerInfoResponse getSellerInfo(Authentication authentication) {
+        final Member member = findMemberByEmail(authentication.getName());
         if(member != null) {
             Optional<SellerInfo> maybeSellerInfo = sellerInfoRepository.findSellerInfoByMember(member);
             Optional<MemberRole> maybeMemberRole = memberRoleRepository.findByMember(member);
@@ -357,7 +354,7 @@ public class MemberServiceImpl implements MemberService{
                 SellerInfo sellerInfo = maybeSellerInfo.get();
                 SellerInfoResponse response =
                         new SellerInfoResponse(
-                                email,
+                                authentication.getName(),
                                 maybeMemberRole.get().getBusinessNumber(),
                                 maybeMemberRole.get().getBusinessName(),
                                 sellerInfo.getAddress().getCity(),
@@ -374,7 +371,7 @@ public class MemberServiceImpl implements MemberService{
                 if(maybeMemberRole.isPresent()) {
                     SellerInfoResponse response =
                             new SellerInfoResponse(
-                                    email,
+                                    authentication.getName(),
                                     maybeMemberRole.get().getBusinessNumber(),
                                     maybeMemberRole.get().getBusinessName());
 
